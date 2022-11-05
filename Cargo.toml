@@ -1,0 +1,31 @@
+[package]
+name = "solana-web3-wasm"
+version = "0.2.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Common
+reqwest = "0.11.11"
+anyhow = "1.0.58"
+
+borsh = { version = "0.9", features = ["const-generics"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.82"
+
+strum = "0.24"
+strum_macros = "0.24"
+
+# Solana
+solana-sdk = "=1.11.0"
+solana-client-wasm = { git = "https://github.com/avareum/solana-playground" }
+# solana-client-wasm = { path = "../solana-playground/wasm/solana-client" }
+solana-extra-wasm = { git = "https://github.com/avareum/solana-playground" }
+# solana-extra-wasm = { path = "../solana-playground/wasm/utils/solana-extra" }
+
+mpl-token-metadata = { version = "=1.4.0", features = ["no-entrypoint"] }
+
+[dev-dependencies]
+tokio = { version = "1.17.0", features = ["full"] }
