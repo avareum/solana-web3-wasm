@@ -20,9 +20,9 @@ strum_macros = "0.24"
 
 # Solana
 solana-sdk = "=1.11.0"
-solana-client-wasm = { git = "https://github.com/avareum/solana-playground" }
+solana-client-wasm = { git = "https://github.com/avareum/solana-playground", rev="afd6db1" }
 # solana-client-wasm = { path = "../solana-playground/wasm/solana-client" }
-solana-extra-wasm = { git = "https://github.com/avareum/solana-playground" }
+solana-extra-wasm = { git = "https://github.com/avareum/solana-playground", rev="afd6db1" }
 # solana-extra-wasm = { path = "../solana-playground/wasm/utils/solana-extra" }
 
 mpl-token-metadata = { version = "=1.4.0", features = ["no-entrypoint"] }

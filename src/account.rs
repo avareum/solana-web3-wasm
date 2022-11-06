@@ -16,8 +16,8 @@ pub async fn get_and_deserialize_multiple_accounts_data<T: BorshDeserialize>(
     client: &WasmClient,
     pubkeys: &[Pubkey],
 ) -> anyhow::Result<Vec<Option<T>>> {
-    let datas = client.get_multiple_accounts(pubkeys).await?;
-    let datas = datas
+    let maybe_accounts = client.get_multiple_accounts(pubkeys).await?;
+    let accounts = maybe_accounts
         .into_iter()
         .map(|account| match account {
             Some(account) => match try_from_slice_unchecked::<T>(&account.data) {
@@ -27,16 +27,16 @@ pub async fn get_and_deserialize_multiple_accounts_data<T: BorshDeserialize>(
             None => None,
         })
         .collect::<Vec<_>>();
-    Ok(datas)
+    Ok(accounts)
 }
 
 pub async fn get_multiple_token_amount(
     client: &WasmClient,
     pubkeys: &[Pubkey],
 ) -> anyhow::Result<Vec<UiTokenAccount>> {
-    let datas = client.get_multiple_token_accounts(pubkeys).await?;
+    let maybe_accounts = client.get_multiple_token_accounts(pubkeys).await?;
 
-    let datas = datas
+    let accounts = maybe_accounts
         .into_iter()
         .enumerate()
         .flat_map(|(i, account)| {
@@ -46,7 +46,7 @@ pub async fn get_multiple_token_amount(
             })
         })
         .collect::<Vec<_>>();
-    Ok(datas)
+    Ok(accounts)
 }
 
 #[cfg(test)]
