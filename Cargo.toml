@@ -1,6 +1,6 @@
 [package]
 name = "solana-web3-wasm"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 
 [lib]
@@ -8,7 +8,6 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 # Common
-reqwest = "0.11.11"
 anyhow = "1.0.58"
 
 borsh = { version = "0.9", features = ["const-generics"] }
@@ -20,18 +19,13 @@ strum_macros = "0.24"
 
 # Solana
 solana-sdk = "=1.11.0"
-solana-client-wasm = { git = "https://github.com/avareum/solana-playground" }
+solana-client-wasm = { git = "https://github.com/avareum/solana-playground", rev="afd6db1" }
 # solana-client-wasm = { path = "../solana-playground/wasm/solana-client" }
-solana-extra-wasm = { git = "https://github.com/avareum/solana-playground" }
+solana-extra-wasm = { git = "https://github.com/avareum/solana-playground", rev="afd6db1" }
 # solana-extra-wasm = { path = "../solana-playground/wasm/utils/solana-extra" }
 
 mpl-token-metadata = { version = "=1.4.0", features = ["no-entrypoint"] }
 
-# Wasm
-fluvio-wasm-timer = "0.2.5"
-
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-getrandom = { version = "0.2", features = ["js"] }
-
 [dev-dependencies]
+fluvio-wasm-timer = "0.2.5"
 tokio = { version = "1.17.0", features = ["full"] }

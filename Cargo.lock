@@ -860,10 +860,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c05aeb6a22b8f62540c194aac980f2115af067bfe15a0734d7277a768d396b31"
 dependencies = [
  "cfg-if",
- "js-sys",
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
- "wasm-bindgen",
 ]
 
 [[package]]
@@ -2013,7 +2011,7 @@ dependencies = [
 [[package]]
 name = "solana-client-wasm"
 version = "1.11.0-beta"
-source = "git+https://github.com/avareum/solana-playground#afd6db1971f33657ec0ab91c6575cc0ec2c27359"
+source = "git+https://github.com/avareum/solana-playground?rev=afd6db1#afd6db1971f33657ec0ab91c6575cc0ec2c27359"
 dependencies = [
  "async-trait",
  "base64 0.13.1",
@@ -2032,7 +2030,7 @@ dependencies = [
 [[package]]
 name = "solana-extra-wasm"
 version = "1.11.0-beta"
-source = "git+https://github.com/avareum/solana-playground#afd6db1971f33657ec0ab91c6575cc0ec2c27359"
+source = "git+https://github.com/avareum/solana-playground?rev=afd6db1#afd6db1971f33657ec0ab91c6575cc0ec2c27359"
 dependencies = [
  "Inflector",
  "arrayref",
@@ -2217,14 +2215,12 @@ dependencies = [
 
 [[package]]
 name = "solana-web3-wasm"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "anyhow",
  "borsh",
  "fluvio-wasm-timer",
- "getrandom 0.2.8",
  "mpl-token-metadata",
- "reqwest",
  "serde",
  "serde_json",
  "solana-client-wasm",
