@@ -2011,7 +2011,7 @@ dependencies = [
 [[package]]
 name = "solana-client-wasm"
 version = "1.11.0-beta"
-source = "git+https://github.com/avareum/solana-playground?rev=afd6db1#afd6db1971f33657ec0ab91c6575cc0ec2c27359"
+source = "git+https://github.com/avareum/solana-playground#afd6db1971f33657ec0ab91c6575cc0ec2c27359"
 dependencies = [
  "async-trait",
  "base64 0.13.1",
@@ -2030,7 +2030,7 @@ dependencies = [
 [[package]]
 name = "solana-extra-wasm"
 version = "1.11.0-beta"
-source = "git+https://github.com/avareum/solana-playground?rev=afd6db1#afd6db1971f33657ec0ab91c6575cc0ec2c27359"
+source = "git+https://github.com/avareum/solana-playground#afd6db1971f33657ec0ab91c6575cc0ec2c27359"
 dependencies = [
  "Inflector",
  "arrayref",
@@ -2215,10 +2215,11 @@ dependencies = [
 
 [[package]]
 name = "solana-web3-wasm"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "borsh",
+ "fluvio-wasm-timer",
  "mpl-token-metadata",
  "reqwest",
  "serde",
