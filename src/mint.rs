@@ -36,7 +36,7 @@ pub fn get_logo_by_mint_address(mint_address: &str) -> String {
 
 #[cfg(test)]
 mod test {
-    use crate::provider::Web3Provider;
+    use crate::client::Web3WasmClient;
     use std::str::FromStr;
 
     use super::*;
@@ -51,10 +51,9 @@ mod test {
 
     #[tokio::test]
     async fn test_get_mint_info() {
-        // Provider
-        let provider = Web3Provider::new_mainnet();
+        let client = Web3WasmClient::new_mainnet();
         let mint_info = get_mint_info(
-            &provider.client,
+            &client,
             &Pubkey::from_str("So11111111111111111111111111111111111111112").unwrap(),
         )
         .await

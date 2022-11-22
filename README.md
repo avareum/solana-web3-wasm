@@ -6,7 +6,7 @@ Solana Wasm Web3 with handy utils
 
 ### Web3
 
-- [x] Able to use `WasmClient` via `Web3Provider`.
+- [x] Able to use `WasmClient` via `Web3WasmClient`.
 
 ### Tokens
 
