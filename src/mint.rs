@@ -36,7 +36,7 @@ pub fn get_logo_by_mint_address(mint_address: &str) -> String {
 
 #[cfg(test)]
 mod test {
-    use crate::client::Web3WasmClient;
+    use crate::client::{EndPoint, Web3WasmClient};
     use std::str::FromStr;
 
     use super::*;
@@ -52,6 +52,21 @@ mod test {
     #[tokio::test]
     async fn test_get_mint_info() {
         let client = Web3WasmClient::new_mainnet();
+        let mint_info = get_mint_info(
+            &client,
+            &Pubkey::from_str("So11111111111111111111111111111111111111112").unwrap(),
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(mint_info.decimals, 9)
+    }
+
+    #[tokio::test]
+    async fn test_custom_rpc() {
+        let client = Web3WasmClient::new(&EndPoint::CustomUrl(
+            "https://rpc.ankr.com/solana".to_owned(),
+        ));
         let mint_info = get_mint_info(
             &client,
             &Pubkey::from_str("So11111111111111111111111111111111111111112").unwrap(),
