@@ -8,11 +8,11 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 # Common
-anyhow = "1.0.58"
+anyhow = "1.0"
 
 borsh = { version = "0.9", features = ["const-generics"] }
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.82"
+serde_json = "1.0"
 
 strum = "0.24"
 strum_macros = "0.24"
@@ -28,4 +28,6 @@ mpl-token-metadata = { version = "=1.4.0", features = ["no-entrypoint"] }
 
 [dev-dependencies]
 fluvio-wasm-timer = "0.2.5"
-tokio = { version = "1.17.0", features = ["full"] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+tokio = { version = "1.22", features = ["full"] }
