@@ -8,7 +8,7 @@ pub fn pubkey_deserialize<'de, D>(deserializer: D) -> Result<Pubkey, D::Error>
 where
     D: Deserializer<'de>,
 {
-    let s: String = Deserialize::deserialize(deserializer).unwrap();
+    let s: String = Deserialize::deserialize(deserializer)?;
     Pubkey::from_str(s.as_str()).map_err(D::Error::custom)
 }
 
