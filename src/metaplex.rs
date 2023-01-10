@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
 use anyhow::bail;
-use mpl_token_metadata::state::{Data, Metadata, PREFIX};
+use mpl_token_metadata::{
+    pda::find_metadata_account,
+    state::{Data, Metadata},
+};
 use solana_client_wasm::WasmClient;
 use solana_sdk::{borsh::try_from_slice_unchecked, pubkey::Pubkey};
 
@@ -9,12 +12,10 @@ pub async fn get_multiple_token_metadata(
     client: &WasmClient,
     mints: &[Pubkey],
 ) -> Result<Vec<Metadata>, anyhow::Error> {
-    let program_key = mpl_token_metadata::id();
     let metadata_keys = mints
         .iter()
         .map(|mint| {
-            let metadata_seeds = &[PREFIX.as_bytes(), program_key.as_ref(), mint.as_ref()];
-            let (metadata_key, _) = Pubkey::find_program_address(metadata_seeds, &program_key);
+            let (metadata_key, _) = find_metadata_account(mint);
             metadata_key
         })
         .collect::<Vec<_>>();
