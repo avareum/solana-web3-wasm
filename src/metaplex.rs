@@ -11,7 +11,7 @@ use solana_sdk::{borsh::try_from_slice_unchecked, pubkey::Pubkey};
 pub async fn get_multiple_token_metadata(
     client: &WasmClient,
     mints: &[Pubkey],
-) -> Result<Vec<Metadata>, anyhow::Error> {
+) -> anyhow::Result<Vec<Metadata>> {
     let metadata_keys = mints
         .iter()
         .map(|mint| {
@@ -51,7 +51,7 @@ pub async fn get_multiple_token_metadata(
 pub async fn get_mint_metadata_map(
     client: &WasmClient,
     mints: &[Pubkey],
-) -> Result<HashMap<String, Metadata>, anyhow::Error> {
+) -> anyhow::Result<HashMap<String, Metadata>> {
     let mut mint_metadata_map = HashMap::new();
     get_multiple_token_metadata(client, mints)
         .await?
