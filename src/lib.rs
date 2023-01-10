@@ -1,5 +1,6 @@
 pub mod account;
 pub mod client;
+pub mod info;
 pub mod metaplex;
 pub mod mint;
 pub mod utils;

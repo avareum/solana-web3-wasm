@@ -31,3 +31,6 @@ fluvio-wasm-timer = "0.2.5"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 tokio = { version = "1.22", features = ["full"] }
+
+[features]
+nft = []
