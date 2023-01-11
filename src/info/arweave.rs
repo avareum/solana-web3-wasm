@@ -1,4 +1,4 @@
-pub struct Nft {
+pub struct NftInfo {
     name: String,
     symbol: String,
     description: String,
