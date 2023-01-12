@@ -13,6 +13,14 @@ pub enum EndPoint {
     CustomUrl(String),
 }
 
+#[derive(EnumString, Display, Debug)]
+pub enum ClusterId {
+    #[strum(serialize = "mainnet-beta")]
+    Mainnet,
+    #[strum(serialize = "devnet")]
+    Devnet,
+}
+
 pub trait Web3WasmClient {
     fn new(endpoint: &EndPoint) -> Self;
     fn new_mainnet() -> Self;
