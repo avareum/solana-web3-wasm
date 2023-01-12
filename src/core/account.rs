@@ -56,7 +56,7 @@ mod test {
     use solana_client_wasm::WasmClient;
     use solana_sdk::pubkey::Pubkey;
 
-    use crate::{account::get_multiple_token_amount, client::EndPoint};
+    use crate::core::{account::get_multiple_token_amount, client::EndPoint};
 
     // TODO: find some BorshDeserialize pubkey
     // #[tokio::test]

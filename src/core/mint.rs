@@ -36,7 +36,7 @@ pub fn get_logo_by_mint_address(mint_address: &str) -> String {
 
 #[cfg(test)]
 mod test {
-    use crate::client::{EndPoint, Web3WasmClient};
+    use crate::core::client::{EndPoint, Web3WasmClient};
     use std::str::FromStr;
 
     use super::*;

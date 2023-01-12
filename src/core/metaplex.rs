@@ -70,7 +70,7 @@ mod test {
     use solana_client_wasm::WasmClient;
     use solana_sdk::pubkey::Pubkey;
 
-    use crate::{
+    use crate::core::{
         client::EndPoint,
         metaplex::{get_mint_metadata_map, get_multiple_token_metadata},
     };
