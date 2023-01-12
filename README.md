@@ -18,6 +18,7 @@ Solana Wasm Web3 with handy utils
 
 ## TODO
 
+- [ ] Able to get [The Fungible Asset](https://docs.metaplex.com/programs/token-metadata/token-standard#the-fungible-asset-standard)
 - [ ] Able to connect `Phantom`.
 - [ ] Able to `signMessage` with `Phantom`.
 - [ ] Able to `signTransaction` with `Phantom`.
