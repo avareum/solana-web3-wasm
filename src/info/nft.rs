@@ -36,7 +36,7 @@ impl NftInformation {
             .map(|mint| get_associated_token_address(owner_address, mint))
             .collect::<Vec<_>>();
 
-        // 2. Has NFT in that ast?
+        // 2. Has NFT in that AST?
         let mut token_balances = self
             .client
             .get_multiple_token_accounts(&ast_list)
@@ -49,7 +49,7 @@ impl NftInformation {
             bail!("No token found.")
         }
 
-        // 3. Get nft info
+        // 3. Get NFT info
         let token_metadata_map = get_mint_metadata_map(&self.client, mint_list)
             .await
             .unwrap();
