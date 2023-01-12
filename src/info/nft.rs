@@ -3,7 +3,7 @@ use mpl_token_metadata::state::Metadata;
 use solana_extra_wasm::program::spl_associated_token_account::get_associated_token_address;
 use std::collections::HashMap;
 
-use crate::{client::Web3WasmClient, metaplex::get_mint_metadata_map};
+use crate::core::{client::Web3WasmClient, metaplex::get_mint_metadata_map};
 use solana_client_wasm::WasmClient;
 use solana_sdk::pubkey::Pubkey;
 

@@ -1,4 +1,5 @@
 pub mod core;
+pub mod info;
 pub mod utils;
 
 pub use solana_client_wasm;
