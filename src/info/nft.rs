@@ -12,6 +12,15 @@ pub struct NftInformation {
 }
 
 impl NftInformation {
+    pub fn new_from_str(cluster_str: &str) -> Result<Self, String> {
+        match cluster_str {
+            "mainnet" => Ok(Self::new_mainnet()),
+            "mainnet-beta" => Ok(Self::new_mainnet()),
+            "devnet" => Ok(Self::new_devnet()),
+            _ => Err(format!("Invalid cluster_str: {}", cluster_str)),
+        }
+    }
+
     pub fn new_mainnet() -> Self {
         Self {
             client: WasmClient::new_mainnet(),
@@ -25,7 +34,7 @@ impl NftInformation {
     }
 
     // read
-    async fn find_nfts_by_mints(
+    pub async fn find_nfts_by_mints(
         self: NftInformation,
         owner_address: &Pubkey,
         mints: &[Pubkey],
