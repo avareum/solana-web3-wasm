@@ -25,13 +25,13 @@ impl NftInformation {
     }
 
     // read
-    async fn find_nfts_by_mint_list(
+    async fn find_nfts_by_mints(
         self: NftInformation,
         owner_address: &Pubkey,
-        mint_list: &[Pubkey],
+        mints: &[Pubkey],
     ) -> anyhow::Result<HashMap<String, Metadata>> {
         // 1. AST exist?
-        let ast_list = mint_list
+        let ast_list = mints
             .iter()
             .map(|mint| get_associated_token_address(owner_address, mint))
             .collect::<Vec<_>>();
@@ -50,9 +50,7 @@ impl NftInformation {
         }
 
         // 3. Get NFT info
-        let token_metadata_map = get_mint_metadata_map(&self.client, mint_list)
-            .await
-            .unwrap();
+        let token_metadata_map = get_mint_metadata_map(&self.client, mints).await.unwrap();
 
         println!("token_metadata_map: {:#?}", token_metadata_map);
 
@@ -67,14 +65,14 @@ mod test {
     use std::str::FromStr;
 
     #[tokio::test]
-    async fn test_find_nfts_by_mint_list() {
+    async fn test_find_nfts_by_mints() {
         let mint_address = "A2NzysADP3a6FzgKkh4dzQbwK6CgsJcdo3Rz6opfFMPy";
         let nft_info = NftInformation::new_devnet();
         let token_metadata_info = nft_info
-            .find_nfts_by_mint_list(
+            .find_nfts_by_mints(
                 // owner_address
                 &Pubkey::from_str("9K9RDUPvRfcVmHnoThUGkdR2bfQwa9oH1bs8RsmR2fjc").unwrap(),
-                // mint_list
+                // mints
                 &[Pubkey::from_str(mint_address).unwrap()],
             )
             .await
