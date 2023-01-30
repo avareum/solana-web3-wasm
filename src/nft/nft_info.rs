@@ -69,7 +69,7 @@ impl NftInformation {
 
 #[cfg(test)]
 mod test {
-    use crate::nft::nft::NftInformation;
+    use crate::nft::nft_info::NftInformation;
     use solana_sdk::pubkey::Pubkey;
     use std::str::FromStr;
 

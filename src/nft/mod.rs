@@ -1,1 +1,1 @@
-pub mod nft;
+pub mod nft_info;
