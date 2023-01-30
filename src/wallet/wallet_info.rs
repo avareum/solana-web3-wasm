@@ -8,50 +8,8 @@ use solana_extra_wasm::program::spl_token;
 use solana_sdk::{native_token::lamports_to_sol, pubkey::Pubkey};
 use std::str::FromStr;
 
-use super::sort::sort_and_parse_token_accounts;
-use super::structs::WalletTokenAccounts;
-
-use serde::{Deserialize, Serialize};
-
-#[cfg(feature = "wasm_bindgen")]
-use wasm_bindgen::prelude::*;
-
-#[wasm_bindgen(getter_with_clone)]
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct WalletInfo {
-    pub decimals: u8,              // 9
-    pub lamports: u64,             // 1895991
-    pub lamports_string: String,   // "1895991"
-    pub ui_balance: f64,           // 1.895991
-    pub ui_balance_string: String, // "1.895991"
-    pub symbol: String,            // "SOL"
-    pub logo: String, // "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png"
-    pub name: String, // "Solana Native Token"
-}
-
-#[wasm_bindgen(getter_with_clone)]
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct WalletTokenInfo {
-    pub decimals: u8,             // 6
-    pub amount_string: String,    // "1895991"
-    pub ui_amount: f64,           // 1.895991
-    pub ui_amount_string: String, // "1.895991"
-    pub symbol: String,           // "USDC"
-    pub logo: String, // "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png"
-    pub address: String, // "B8MA5aWJ7xv3SQgmnLe5orh7zDt8ah6JybBsTPhkT1Ng"
-    pub mint: String, // "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
-    pub name: String, // "USD Coin"
-}
-
-#[cfg(feature = "wasm_bindgen")]
-impl WalletInfo {
-    pub fn to_json(&self) -> Result<JsValue, JsError> {
-        match serde_wasm_bindgen::to_value(self) {
-            Ok(js_value) => Ok(js_value),
-            Err(err) => Err(JsError::new(&err.to_string())),
-        }
-    }
-}
+use super::structs::{WalletTokenAccounts, WalletTokenInfo};
+use super::{sort::sort_and_parse_token_accounts, structs::WalletInfo};
 
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]

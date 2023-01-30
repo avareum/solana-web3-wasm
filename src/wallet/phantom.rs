@@ -132,7 +132,7 @@ mod test {
         transaction::Transaction,
     };
 
-    use crate::wallet_info::phantom::get_message_data_base64_from;
+    use crate::wallet::phantom::get_message_data_base64_from;
 
     fn get_alice_keypair() -> Keypair {
         Keypair::from_bytes(&[
