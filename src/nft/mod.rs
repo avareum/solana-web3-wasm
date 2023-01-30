@@ -1,1 +1,2 @@
-pub mod nft_info;
+#[cfg(feature = "nft_info")]
+pub mod structs;

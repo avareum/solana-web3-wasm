@@ -1,6 +1,7 @@
 use crate::{
     core::{metaplex::get_mint_metadata_map, mint::get_logo_by_mint_address},
     solana_client_wasm::{utils::rpc_filter::TokenAccountsFilter, WasmClient},
+    wallet::sort::sort_and_parse_token_accounts,
 };
 use anyhow::bail;
 use async_trait::async_trait;
@@ -8,8 +9,7 @@ use solana_extra_wasm::program::spl_token;
 use solana_sdk::{native_token::lamports_to_sol, pubkey::Pubkey};
 use std::str::FromStr;
 
-use super::structs::{WalletTokenAccounts, WalletTokenInfo};
-use super::{sort::sort_and_parse_token_accounts, structs::WalletInfo};
+use crate::wallet::structs::*;
 
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
