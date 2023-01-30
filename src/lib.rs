@@ -1,7 +1,17 @@
-pub mod core;
-pub mod info;
-
-pub use mpl_token_metadata;
 pub use solana_client_wasm;
 pub use solana_extra_wasm;
 pub use solana_sdk;
+
+#[cfg(feature = "transaction_builder")]
+pub use spl_token;
+
+pub mod core;
+
+#[cfg(feature = "nft_info")]
+pub mod nft_info;
+
+#[cfg(feature = "wallet_info")]
+pub mod wallet_info;
+
+#[cfg(feature = "transaction_builder")]
+pub mod transaction_builder;

@@ -9,6 +9,8 @@ pub enum EndPoint {
     Mainnet,
     #[strum(serialize = "https://api.devnet.solana.com")]
     Devnet,
+    #[strum(serialize = "https://api.testnet.solana.com")]
+    Testnet,
     #[strum(disabled)]
     CustomUrl(String),
 }
@@ -19,12 +21,15 @@ pub enum ClusterId {
     Mainnet,
     #[strum(serialize = "devnet")]
     Devnet,
+    #[strum(serialize = "testnet")]
+    Testnet,
 }
 
 pub trait Web3WasmClient {
     fn new(endpoint: &EndPoint) -> Self;
     fn new_mainnet() -> Self;
     fn new_devnet() -> Self;
+    fn new_testnet() -> Self;
 }
 
 impl Web3WasmClient for WasmClient {
@@ -32,6 +37,7 @@ impl Web3WasmClient for WasmClient {
         let endpoint = match endpoint {
             EndPoint::Mainnet => EndPoint::Mainnet.to_string(),
             EndPoint::Devnet => EndPoint::Devnet.to_string(),
+            EndPoint::Testnet => EndPoint::Testnet.to_string(),
             EndPoint::CustomUrl(url) => url.to_string(),
         };
 
@@ -48,6 +54,10 @@ impl Web3WasmClient for WasmClient {
     }
 
     fn new_devnet() -> Self {
+        Web3WasmClient::new(&EndPoint::Devnet)
+    }
+
+    fn new_testnet() -> Self {
         Web3WasmClient::new(&EndPoint::Devnet)
     }
 }

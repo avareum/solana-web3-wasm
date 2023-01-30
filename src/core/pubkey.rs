@@ -1,6 +1,6 @@
 use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serializer};
-use solana_web3_wasm::solana_sdk::pubkey::Pubkey;
+use solana_sdk::pubkey::Pubkey;
 use std::str::FromStr;
 
 /// Custom Pubkey deserializer to use with Serde

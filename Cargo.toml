@@ -1,13 +1,13 @@
 [package]
 name = "solana-web3-wasm"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-# Common
+## Common
 anyhow = "1.0"
 
 borsh = { version = "0.9", features = ["const-generics"] }
@@ -17,14 +17,32 @@ serde_json = "1.0"
 strum = "0.24"
 strum_macros = "0.24"
 
-# Solana
+## Solana
 solana-sdk = "=1.11.0"
 solana-client-wasm = { git = "https://github.com/avareum/solana-playground", rev="afd6db1" }
 # solana-client-wasm = { path = "../solana-playground/wasm/solana-client" }
 solana-extra-wasm = { git = "https://github.com/avareum/solana-playground", rev="afd6db1" }
 # solana-extra-wasm = { path = "../solana-playground/wasm/utils/solana-extra" }
 
-mpl-token-metadata = { version = "=1.4.0", features = ["no-entrypoint"] }
+### Transfer
+spl-associated-token-account = { version = "=1.1.1", optional = true }
+spl-token = { version = "=3.5.0", features = ["no-entrypoint"], optional = true }
+
+### solana-zk-token-sdk
+getrandom = { version = "0.2", features = ["js"] }
+async-trait = "0.1.58"
+
+## Optional
+### wallet_info, nft_info
+mpl-token-metadata = { version = "=1.4.0", features = ["no-entrypoint"], optional = true }
+
+### transaction_builder
+base64 = { version = "0.13", optional = true }
+
+## Wasm, Bindegn
+wasm-bindgen = "0.2.83"
+wasm-bindgen-futures = { version = "0.4.33", optional = true }
+serde-wasm-bindgen = { version = "0.4", optional = true }
 
 [dev-dependencies]
 fluvio-wasm-timer = "0.2.5"
@@ -32,5 +50,17 @@ fluvio-wasm-timer = "0.2.5"
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 tokio = { version = "1.22", features = ["full"] }
 
+[profile.release]
+opt-level = "z"  # Optimize for size.
+strip = true  # Automatically strip symbols from the binary.
+lto = true # Enable Link Time Optimization (LTO)
+codegen-units = 1 # Reduce Parallel Code Generation Units to Increase Optimization
+panic = "abort"
+
 [features]
-nft = []
+default = ["wallet_info", "wasm_bindgen"]
+wallet_info = ["dep:mpl-token-metadata"]
+nft_info = ["dep:mpl-token-metadata"]
+wasm_bindgen = ["dep:wasm-bindgen-futures", "dep:serde-wasm-bindgen"]
+transaction_builder = ["dep:spl-associated-token-account", "dep:spl-token", "dep:base64"]
+phantom = ["default", "transaction_builder"]

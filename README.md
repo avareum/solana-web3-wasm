@@ -1,12 +1,18 @@
 # solana-web3-wasm
 
-Solana Wasm Web3 with handy utils
+Wrapped `WasmClient` with handy features.
 
 ## Features
 
 ### Web3
 
-- [x] Able to use `WasmClient` via `Web3WasmClient`.
+- [ ] Able to use as `phantom` alias.
+- [ ] Able to prepare `message_data` for sign.
+  - [ ] `connect`.
+  - [ ] `disconnect`.
+  - [ ] `sign_transaction`.
+  - [ ] `signAllTransactions`.
+  - [ ] `signMessage`.
 
 ### Tokens
 
@@ -18,6 +24,9 @@ Solana Wasm Web3 with handy utils
 
 ## TODO
 
+- [ ] Complete `success_transfer_spl_no_ata`.
+- [ ] Complete `success_test_transaction_from_string`.
+- [ ] Complete `success_test_transactions_from_string`.
 - [ ] Able to get [The Fungible Asset](https://docs.metaplex.com/programs/token-metadata/token-standard#the-fungible-asset-standard)
 - [ ] Able to connect `Phantom`.
 - [ ] Able to `signMessage` with `Phantom`.
@@ -26,5 +35,6 @@ Solana Wasm Web3 with handy utils
 
 ## TOHAVE
 
+- [ ] Support parse `Transaction` signatures. // Not require atm because we will sign with wallet, no pre-signed from `dApp`.
 - [ ] Add `test_get_and_deserialize_account_data` test.
 - [ ] Support token logo that not exists via `Raydium`.

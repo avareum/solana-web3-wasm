@@ -860,8 +860,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c05aeb6a22b8f62540c194aac980f2115af067bfe15a0734d7277a768d396b31"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -1836,6 +1838,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde-wasm-bindgen"
+version = "0.4.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e3b4c031cd0d9014307d82b8abf653c0290fbdaeb4c02d00c63cf52f728628bf"
+dependencies = [
+ "js-sys",
+ "serde",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "serde_bytes"
 version = "0.11.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2215,20 +2228,28 @@ dependencies = [
 
 [[package]]
 name = "solana-web3-wasm"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "anyhow",
+ "async-trait",
+ "base64 0.13.1",
  "borsh",
  "fluvio-wasm-timer",
+ "getrandom 0.2.8",
  "mpl-token-metadata",
  "serde",
+ "serde-wasm-bindgen",
  "serde_json",
  "solana-client-wasm",
  "solana-extra-wasm",
  "solana-sdk",
+ "spl-associated-token-account",
+ "spl-token",
  "strum",
  "strum_macros",
  "tokio",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
 ]
 
 [[package]]
