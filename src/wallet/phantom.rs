@@ -11,7 +11,8 @@ use solana_sdk::{
     transaction::Transaction,
 };
 
-use base64;
+#[cfg(feature = "wasm_bindgen")]
+use wasm_bindgen::prelude::*;
 
 // Core -------------------------------------
 
@@ -108,6 +109,7 @@ impl From<TransactionValue> for Transaction {
 
 // Fun -------------------------------------
 
+#[wasm_bindgen]
 pub enum EncodingType {
     Base64,
     Base58,
