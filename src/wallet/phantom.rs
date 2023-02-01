@@ -92,38 +92,61 @@ impl From<InstructionValue> for Instruction {
 }
 
 impl From<TransactionValue> for Transaction {
-    fn from(transaction_value: TransactionValue) -> Self {
-        let instructions: Vec<Instruction> = transaction_value
+    fn from(tx_value: TransactionValue) -> Self {
+        let instructions: Vec<Instruction> = tx_value
             .instructions
             .into_iter()
             .map(Instruction::from)
             .collect();
 
-        let mut transaction =
-            Transaction::new_with_payer(&instructions, Some(&transaction_value.fee_payer));
-        transaction.message.recent_blockhash = transaction_value.recent_blockhash;
+        let mut tx = Transaction::new_with_payer(&instructions, Some(&tx_value.fee_payer));
+        tx.message.recent_blockhash = tx_value.recent_blockhash;
 
-        transaction
+        tx
     }
 }
 
 // Fun -------------------------------------
 
-pub fn parse_message_data_base64(transaction_str: &str) -> anyhow::Result<String> {
-    let transaction_json = serde_json::from_str(transaction_str)?;
-    let transaction_value = serde_json::from_value::<TransactionValue>(transaction_json).unwrap();
-    let transaction = Transaction::from(transaction_value);
-    let message_data = transaction.message_data();
-    let message_data_base64 = base64::encode(message_data);
-
-    Ok(message_data_base64)
+pub enum EncodingType {
+    Base64,
+    Base58,
 }
 
-pub fn parse_message_data_base64s(transaction_strs: Vec<String>) -> anyhow::Result<Vec<String>> {
+pub fn get_base64_message_data_from_transaction(tx: &str) -> anyhow::Result<String> {
+    get_message_data_from_transaction(tx, &EncodingType::Base64)
+}
+
+pub fn get_base64_message_data_from_transactions(txs: Vec<String>) -> anyhow::Result<Vec<String>> {
+    get_message_data_from_transactions(txs, &EncodingType::Base64)
+}
+
+pub fn get_message_data_from_transaction(
+    tx: &str,
+    encoding_type: &EncodingType,
+) -> anyhow::Result<String> {
+    let tx_json = serde_json::from_str(tx)?;
+    let tx_value = serde_json::from_value::<TransactionValue>(tx_json).unwrap();
+    let tx = Transaction::from(tx_value);
+    let message_data = tx.message_data();
+
+    // Encode
+    let message_data_string = match encoding_type {
+        EncodingType::Base58 => bs58::encode(message_data).into_string(),
+        _ => base64::encode(message_data),
+    };
+
+    Ok(message_data_string)
+}
+
+pub fn get_message_data_from_transactions(
+    txs: Vec<String>,
+    encoding_type: &EncodingType,
+) -> anyhow::Result<Vec<String>> {
     let mut errors = vec![];
-    let result = transaction_strs
+    let result = txs
         .into_iter()
-        .map(|e| parse_message_data_base64(&e))
+        .map(|e| get_message_data_from_transaction(&e, encoding_type))
         .filter_map(|r| r.map_err(|e| errors.push(e)).ok())
         .collect::<Vec<_>>();
 
@@ -166,7 +189,7 @@ mod test {
         (alice_pubkey, recent_blockhash)
     }
 
-    fn get_transfer_transaction_str() -> String {
+    fn get_transfer_transaction_string() -> String {
         let (alice_pubkey, recent_blockhash) = get_default_setup();
         json!({
           "recentBlockhash": recent_blockhash.to_string(),
@@ -211,10 +234,10 @@ mod test {
     }
 
     #[tokio::test]
-    async fn success_parse_message_data_base64() {
+    async fn success_get_base64_message_data_from_transaction() {
         // Setup
-        let transaction_str = get_transfer_transaction_str();
-        let message_data_base64 = parse_message_data_base64(transaction_str.as_str()).unwrap();
+        let tx = get_transfer_transaction_string();
+        let message_data_base64 = get_base64_message_data_from_transaction(tx.as_str()).unwrap();
 
         dbg!(&message_data_base64);
 
@@ -233,13 +256,13 @@ mod test {
     }
 
     #[tokio::test]
-    async fn success_parse_message_data_base64s() {
+    async fn success_get_base64_message_data_from_transactions() {
         // Setup
-        let transaction1_str = get_transfer_transaction_str();
-        let transaction2_str = get_transfer_transaction_str();
-        let transaction_strs = vec![transaction1_str, transaction2_str];
+        let tx1_string = get_transfer_transaction_string();
+        let tx2_string = get_transfer_transaction_string();
+        let txs = vec![tx1_string, tx2_string];
 
-        let message_data_base64s = parse_message_data_base64s(transaction_strs).unwrap();
+        let message_data_base64s = get_base64_message_data_from_transactions(txs).unwrap();
 
         dbg!(&message_data_base64s);
 

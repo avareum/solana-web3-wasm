@@ -2234,6 +2234,7 @@ dependencies = [
  "async-trait",
  "base64 0.13.1",
  "borsh",
+ "bs58",
  "fluvio-wasm-timer",
  "getrandom 0.2.8",
  "mpl-token-metadata",
