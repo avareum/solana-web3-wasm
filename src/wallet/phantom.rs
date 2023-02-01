@@ -160,80 +160,12 @@ pub fn get_message_data_from_transactions(
 #[cfg(not(target_arch = "wasm32"))]
 #[cfg(test)]
 mod test {
-    use std::str::FromStr;
 
-    use serde_json::json;
-    use solana_sdk::{
-        hash::Hash, pubkey::Pubkey, signature::Keypair, signer::Signer, system_instruction,
-        transaction::Transaction,
-    };
+    use solana_sdk::{system_instruction, transaction::Transaction};
+
+    use crate::tests::mock::*;
 
     use super::*;
-
-    fn get_alice_keypair() -> Keypair {
-        Keypair::from_bytes(&[
-            48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 255, 101, 36, 24, 124, 23,
-            167, 21, 132, 204, 155, 5, 185, 58, 121, 75, 156, 227, 116, 193, 215, 38, 142, 22, 8,
-            14, 229, 239, 119, 93, 5, 218, 161, 35, 3, 33, 0, 36, 100, 158, 252, 33, 161, 97, 185,
-            62, 89, 99,
-        ])
-        .unwrap()
-    }
-
-    fn get_default_setup() -> (Pubkey, Hash) {
-        let alice_pubkey = get_alice_keypair().pubkey();
-        let recent_blockhash = Hash::new_from_array(
-            Pubkey::from_str("9zb7KBbBo8brCsfMNe9dZhPcohiMVd8LPDJwHa82iNV1")
-                .unwrap()
-                .to_bytes(),
-        );
-
-        (alice_pubkey, recent_blockhash)
-    }
-
-    fn get_transfer_transaction_string() -> String {
-        let (alice_pubkey, recent_blockhash) = get_default_setup();
-        json!({
-          "recentBlockhash": recent_blockhash.to_string(),
-          "feePayer": alice_pubkey.to_string(),
-          "nonceInfo": null,
-          "instructions": [
-            {
-              "keys": [
-                {
-                  "pubkey": alice_pubkey.to_string(),
-                  "isSigner": true,
-                  "isWritable": true
-                },
-                {
-                  "pubkey": alice_pubkey.to_string(),
-                  "isSigner": false,
-                  "isWritable": true
-                }
-              ],
-              "programId": "11111111111111111111111111111111",
-              "data": [
-                2,
-                0,
-                0,
-                0,
-                100,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-              ]
-            }
-          ],
-          "signers": [
-              alice_pubkey.to_string()
-          ]
-        })
-        .to_string()
-    }
 
     #[tokio::test]
     async fn success_get_base64_message_data_from_transaction() {
