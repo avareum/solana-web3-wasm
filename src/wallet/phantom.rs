@@ -109,7 +109,7 @@ impl From<TransactionValue> for Transaction {
 
 // Fun -------------------------------------
 
-pub fn get_message_data_base64_from(transaction_str: &str) -> anyhow::Result<String> {
+pub fn parse_message_data_base64(transaction_str: &str) -> anyhow::Result<String> {
     let transaction_json = serde_json::from_str(transaction_str)?;
     let transaction_value = serde_json::from_value::<TransactionValue>(transaction_json).unwrap();
     let transaction = Transaction::from(transaction_value);
@@ -117,6 +117,17 @@ pub fn get_message_data_base64_from(transaction_str: &str) -> anyhow::Result<Str
     let message_data_base64 = base64::encode(message_data);
 
     Ok(message_data_base64)
+}
+
+pub fn parse_message_data_base64s(transaction_strs: Vec<String>) -> anyhow::Result<Vec<String>> {
+    let mut errors = vec![];
+    let result = transaction_strs
+        .into_iter()
+        .map(|e| parse_message_data_base64(&e))
+        .filter_map(|r| r.map_err(|e| errors.push(e)).ok())
+        .collect::<Vec<_>>();
+
+    Ok(result)
 }
 
 // Test -------------------------------------
@@ -132,7 +143,7 @@ mod test {
         transaction::Transaction,
     };
 
-    use crate::wallet::phantom::get_message_data_base64_from;
+    use super::*;
 
     fn get_alice_keypair() -> Keypair {
         Keypair::from_bytes(&[
@@ -144,173 +155,106 @@ mod test {
         .unwrap()
     }
 
-    #[tokio::test]
-    async fn success_test_transaction_from_string() {
+    fn get_default_setup() -> (Pubkey, Hash) {
         let alice_pubkey = get_alice_keypair().pubkey();
         let recent_blockhash = Hash::new_from_array(
             Pubkey::from_str("9zb7KBbBo8brCsfMNe9dZhPcohiMVd8LPDJwHa82iNV1")
                 .unwrap()
                 .to_bytes(),
         );
-        let message_data_base64 = get_message_data_base64_from(
-            json!({
-              "recentBlockhash": recent_blockhash.to_string(),
-              "feePayer": alice_pubkey.to_string(),
-              "nonceInfo": null,
-              "instructions": [
+
+        (alice_pubkey, recent_blockhash)
+    }
+
+    fn get_transfer_transaction_str() -> String {
+        let (alice_pubkey, recent_blockhash) = get_default_setup();
+        json!({
+          "recentBlockhash": recent_blockhash.to_string(),
+          "feePayer": alice_pubkey.to_string(),
+          "nonceInfo": null,
+          "instructions": [
+            {
+              "keys": [
                 {
-                  "keys": [
-                    {
-                      "pubkey": alice_pubkey.to_string(),
-                      "isSigner": true,
-                      "isWritable": true
-                    },
-                    {
-                      "pubkey": alice_pubkey.to_string(),
-                      "isSigner": false,
-                      "isWritable": true
-                    }
-                  ],
-                  "programId": "11111111111111111111111111111111",
-                  "data": [
-                    2,
-                    0,
-                    0,
-                    0,
-                    100,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0
-                  ]
+                  "pubkey": alice_pubkey.to_string(),
+                  "isSigner": true,
+                  "isWritable": true
+                },
+                {
+                  "pubkey": alice_pubkey.to_string(),
+                  "isSigner": false,
+                  "isWritable": true
                 }
               ],
-              "signers": [
-                  alice_pubkey.to_string()
-              ],
-              "signatures": [
-                "3rhWAACjuUwqZQLBem9mBjcrwAtK3VeUUPmM16ebmtdscE4CwEMvAHqVGuJZHD46dyXFroTVQJ6dsVHJ7QAU3ex1"
+              "programId": "11111111111111111111111111111111",
+              "data": [
+                2,
+                0,
+                0,
+                0,
+                100,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
               ]
-            })
-            .to_string()
-            .as_str(),
-        )
-        .unwrap();
+            }
+          ],
+          "signers": [
+              alice_pubkey.to_string()
+          ]
+        })
+        .to_string()
+    }
+
+    #[tokio::test]
+    async fn success_parse_message_data_base64() {
+        // Setup
+        let transaction_str = get_transfer_transaction_str();
+        let message_data_base64 = parse_message_data_base64(transaction_str.as_str()).unwrap();
 
         dbg!(&message_data_base64);
 
+        // Prove
+        let (alice_pubkey, recent_blockhash) = get_default_setup();
         let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
         let mut tx = Transaction::new_with_payer(&[ix], Some(&alice_pubkey));
-
         tx.message.recent_blockhash = recent_blockhash;
-
-        dbg!(&tx);
 
         let message_data = tx.message_data();
         let sdk_message_data_base64 = base64::encode(message_data);
+
         dbg!(&sdk_message_data_base64);
 
         assert_eq!(message_data_base64, sdk_message_data_base64);
     }
 
     #[tokio::test]
-    async fn success_test_transactions_from_string() {
-        let alice_pubkey = get_alice_keypair().pubkey();
-        let recent_blockhash = Hash::new_from_array(
-            Pubkey::from_str("9zb7KBbBo8brCsfMNe9dZhPcohiMVd8LPDJwHa82iNV1")
-                .unwrap()
-                .to_bytes(),
-        );
-        let message_data_base64 = get_message_data_base64_from(
-            json!({
-              "recentBlockhash": recent_blockhash.to_string(),
-              "feePayer": alice_pubkey.to_string(),
-              "nonceInfo": null,
-              "instructions": [
-                {
-                  "keys": [
-                    {
-                      "pubkey": alice_pubkey.to_string(),
-                      "isSigner": true,
-                      "isWritable": true
-                    },
-                    {
-                      "pubkey": alice_pubkey.to_string(),
-                      "isSigner": false,
-                      "isWritable": true
-                    }
-                  ],
-                  "programId": "11111111111111111111111111111111",
-                  "data": [
-                    2,
-                    0,
-                    0,
-                    0,
-                    100,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0
-                  ]
-                }, {
-                    "keys": [
-                      {
-                        "pubkey": alice_pubkey.to_string(),
-                        "isSigner": true,
-                        "isWritable": true
-                      },
-                      {
-                        "pubkey": alice_pubkey.to_string(),
-                        "isSigner": false,
-                        "isWritable": true
-                      }
-                    ],
-                    "programId": "11111111111111111111111111111111",
-                    "data": [
-                      2,
-                      0,
-                      0,
-                      0,
-                      100,
-                      0,
-                      0,
-                      0,
-                      0,
-                      0,
-                      0,
-                      0
-                    ]
-                  }
-              ],
-              "signers": [
-                  alice_pubkey.to_string()
-              ]
-            })
-            .to_string()
-            .as_str(),
-        )
-        .unwrap();
+    async fn success_parse_message_data_base64s() {
+        // Setup
+        let transaction1_str = get_transfer_transaction_str();
+        let transaction2_str = get_transfer_transaction_str();
+        let transaction_strs = vec![transaction1_str, transaction2_str];
 
-        dbg!(&message_data_base64);
+        let message_data_base64s = parse_message_data_base64s(transaction_strs).unwrap();
 
+        dbg!(&message_data_base64s);
+
+        // Prove
+        let (alice_pubkey, recent_blockhash) = get_default_setup();
         let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
-        let mut tx = Transaction::new_with_payer(&[ix.clone(), ix], Some(&alice_pubkey));
-
+        let mut tx = Transaction::new_with_payer(&[ix], Some(&alice_pubkey));
         tx.message.recent_blockhash = recent_blockhash;
 
-        dbg!(&tx);
+        let message_datas = vec![tx.message_data(), tx.message_data()];
+        let sdk_message_data_base64s = message_datas.iter().map(base64::encode).collect::<Vec<_>>();
 
-        let message_data = tx.message_data();
-        let sdk_message_data_base64 = base64::encode(message_data);
-        dbg!(&sdk_message_data_base64);
+        dbg!(&sdk_message_data_base64s);
 
-        assert_eq!(message_data_base64, sdk_message_data_base64);
+        assert_eq!(message_data_base64s, sdk_message_data_base64s);
     }
 
     // #[tokio::test]
