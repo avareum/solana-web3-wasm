@@ -15,14 +15,14 @@ use solana_extra_wasm::program::spl_token::instruction::transfer_checked;
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
 pub trait TokenTransfer {
-    fn transfer_native(
+    fn get_base64_message_data_for_transfer_native(
         &self,
         source: &Pubkey,
         destination: &Pubkey,
         amount: u64,
     ) -> Result<String, anyhow::Error>;
 
-    async fn transfer_spl(
+    async fn get_base64_message_data_for_transfer_spl(
         &self,
         source: &Pubkey,
         destination: &Pubkey,
@@ -35,7 +35,7 @@ pub trait TokenTransfer {
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
 impl TokenTransfer for WasmClient {
-    fn transfer_native(
+    fn get_base64_message_data_for_transfer_native(
         &self,
         source: &Pubkey,
         destination: &Pubkey,
@@ -56,7 +56,7 @@ impl TokenTransfer for WasmClient {
         Ok(message_b64)
     }
 
-    async fn transfer_spl(
+    async fn get_base64_message_data_for_transfer_spl(
         &self,
         source: &Pubkey,
         destination: &Pubkey,
@@ -151,11 +151,11 @@ mod test {
         let account = client.get_account(&mint_pubkey).await.unwrap();
         let mint_info = Mint::unpack(&account.data).unwrap();
         let decimals = mint_info.decimals;
-        let ui_amount = 0.001f64;
+        let ui_amount = 0.00001f64;
         let amount = spl_token::ui_amount_to_amount(ui_amount, decimals);
 
         let message_b64 = client
-            .transfer_spl(
+            .get_base64_message_data_for_transfer_spl(
                 &source_pubkey,
                 &destination_pubkey,
                 &mint_pubkey,
