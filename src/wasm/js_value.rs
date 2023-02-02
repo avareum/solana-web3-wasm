@@ -4,11 +4,19 @@ use serde_wasm_bindgen::to_value;
 use wasm_bindgen::{JsError, JsValue};
 
 pub trait JsValueConverter {
-    fn to_js_value(&self) -> Result<Vec<JsValue>, JsError>;
+    fn to_js_value(&self) -> Result<JsValue, JsError>;
+    fn to_js_vec_value(&self) -> Result<Vec<JsValue>, JsError>;
 }
 
 impl JsValueConverter for Vec<String> {
-    fn to_js_value(&self) -> Result<Vec<JsValue>, JsError> {
+    fn to_js_value(&self) -> Result<JsValue, JsError> {
+        match serde_wasm_bindgen::to_value(&self) {
+            Ok(js_value) => Ok(js_value),
+            Err(err) => Err(JsError::new(&err.to_string())),
+        }
+    }
+
+    fn to_js_vec_value(&self) -> Result<Vec<JsValue>, JsError> {
         let mut errors = vec![];
         let vec_str = self
             .iter()
