@@ -9,7 +9,7 @@ use wasm_bindgen::prelude::*;
 
 use crate::wallet::transaction_v0::TransactionV0Value;
 
-use super::{transaction::TransactionValue, transaction_v0::TransactionV0ValueNotWorking};
+use super::transaction::TransactionValue;
 
 // Fun -------------------------------------
 
