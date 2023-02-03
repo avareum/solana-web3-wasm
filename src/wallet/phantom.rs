@@ -111,16 +111,16 @@ impl From<TransactionValue> for Transaction {
 
 #[wasm_bindgen]
 pub enum EncodingType {
-    Base64,
     Base58,
+    Base64,
 }
 
-pub fn get_base64_message_data_from_transaction(tx: &str) -> anyhow::Result<String> {
-    get_message_data_from_transaction(tx, &EncodingType::Base64)
+pub fn get_message_data_bs58_from_transaction(tx: &str) -> anyhow::Result<String> {
+    get_message_data_from_transaction(tx, &EncodingType::Base58)
 }
 
-pub fn get_base64_message_data_from_transactions(txs: Vec<String>) -> anyhow::Result<Vec<String>> {
-    get_message_data_from_transactions(txs, &EncodingType::Base64)
+pub fn get_message_data_bs58_from_transactions(txs: Vec<String>) -> anyhow::Result<Vec<String>> {
+    get_message_data_from_transactions(txs, &EncodingType::Base58)
 }
 
 pub fn get_message_data_from_transaction(
@@ -135,7 +135,7 @@ pub fn get_message_data_from_transaction(
     // Encode
     let message_data_string = match encoding_type {
         EncodingType::Base58 => bs58::encode(message_data).into_string(),
-        _ => base64::encode(message_data),
+        EncodingType::Base64 => base64::encode(message_data),
     };
 
     Ok(message_data_string)
@@ -168,12 +168,12 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn success_get_base64_message_data_from_transaction() {
+    async fn success_get_message_data_bs58_from_transaction() {
         // Setup
         let tx = get_transfer_transaction_string();
-        let message_data_base64 = get_base64_message_data_from_transaction(tx.as_str()).unwrap();
+        let message_data_bs58 = get_message_data_bs58_from_transaction(tx.as_str()).unwrap();
 
-        dbg!(&message_data_base64);
+        dbg!(&message_data_bs58);
 
         // Prove
         let (alice_pubkey, recent_blockhash) = get_default_setup();
@@ -182,23 +182,23 @@ mod test {
         tx.message.recent_blockhash = recent_blockhash;
 
         let message_data = tx.message_data();
-        let sdk_message_data_base64 = base64::encode(message_data);
+        let sdk_message_data_bs58 = bs58::encode(message_data).into_string();
 
-        dbg!(&sdk_message_data_base64);
+        dbg!(&sdk_message_data_bs58);
 
-        assert_eq!(message_data_base64, sdk_message_data_base64);
+        assert_eq!(message_data_bs58, sdk_message_data_bs58);
     }
 
     #[tokio::test]
-    async fn success_get_base64_message_data_from_transactions() {
+    async fn success_get_message_data_bs58_from_transactions() {
         // Setup
         let tx1_string = get_transfer_transaction_string();
         let tx2_string = get_transfer_transaction_string();
         let txs = vec![tx1_string, tx2_string];
 
-        let message_data_base64s = get_base64_message_data_from_transactions(txs).unwrap();
+        let message_data_bs58s = get_message_data_bs58_from_transactions(txs).unwrap();
 
-        dbg!(&message_data_base64s);
+        dbg!(&message_data_bs58s);
 
         // Prove
         let (alice_pubkey, recent_blockhash) = get_default_setup();
@@ -207,11 +207,14 @@ mod test {
         tx.message.recent_blockhash = recent_blockhash;
 
         let message_datas = vec![tx.message_data(), tx.message_data()];
-        let sdk_message_data_base64s = message_datas.iter().map(base64::encode).collect::<Vec<_>>();
+        let sdk_message_data_bs58s = message_datas
+            .iter()
+            .map(|e| bs58::encode(e).into_string())
+            .collect::<Vec<_>>();
 
-        dbg!(&sdk_message_data_base64s);
+        dbg!(&sdk_message_data_bs58s);
 
-        assert_eq!(message_data_base64s, sdk_message_data_base64s);
+        assert_eq!(message_data_bs58s, sdk_message_data_bs58s);
     }
 
     // #[tokio::test]
@@ -222,7 +225,7 @@ mod test {
     //             .unwrap()
     //             .to_bytes(),
     //     );
-    //     let message_data_base64 = [104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100];
+    //     let message_data_bs58 = [104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100];
 
     //     todo!()
     // }

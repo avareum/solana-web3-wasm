@@ -15,14 +15,14 @@ use solana_extra_wasm::program::spl_token::instruction::transfer_checked;
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
 pub trait TokenTransfer {
-    fn get_base64_message_data_for_transfer_native(
+    fn get_message_data_bs58_for_transfer_native(
         &self,
         source: &Pubkey,
         destination: &Pubkey,
         amount: u64,
     ) -> Result<String, anyhow::Error>;
 
-    async fn get_base64_message_data_for_transfer_spl(
+    async fn get_message_data_bs58_for_transfer_spl(
         &self,
         source: &Pubkey,
         destination: &Pubkey,
@@ -35,7 +35,7 @@ pub trait TokenTransfer {
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
 impl TokenTransfer for WasmClient {
-    fn get_base64_message_data_for_transfer_native(
+    fn get_message_data_bs58_for_transfer_native(
         &self,
         source: &Pubkey,
         destination: &Pubkey,
@@ -49,14 +49,14 @@ impl TokenTransfer for WasmClient {
 
         instructions.push(ix);
 
-        // 2. Serialize message to base64
+        // 2. Serialize message to bs58
         let message = Message::new(&instructions, Some(source));
-        let message_b64 = base64::encode(message.serialize());
+        let message_b64 = bs58::encode(message.serialize()).into_string();
 
         Ok(message_b64)
     }
 
-    async fn get_base64_message_data_for_transfer_spl(
+    async fn get_message_data_bs58_for_transfer_spl(
         &self,
         source: &Pubkey,
         destination: &Pubkey,
@@ -118,9 +118,9 @@ impl TokenTransfer for WasmClient {
 
         instructions.push(ix);
 
-        // 3. Serialize message to base64
+        // 3. Serialize message to bs58
         let message = Message::new(&instructions, Some(source));
-        let message_b64 = base64::encode(message.serialize());
+        let message_b64 = bs58::encode(message.serialize()).into_string();
 
         Ok(message_b64)
     }
@@ -155,7 +155,7 @@ mod test {
         let amount = spl_token::ui_amount_to_amount(ui_amount, decimals);
 
         let message_b64 = client
-            .get_base64_message_data_for_transfer_spl(
+            .get_message_data_bs58_for_transfer_spl(
                 &source_pubkey,
                 &destination_pubkey,
                 &mint_pubkey,
