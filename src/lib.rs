@@ -1,3 +1,5 @@
+#![recursion_limit = "256"]
+
 pub use solana_client_wasm;
 pub use solana_extra_wasm;
 pub use solana_sdk;

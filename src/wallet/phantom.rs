@@ -1,111 +1,15 @@
-use crate::core::hash::{hash_deserialize, hash_serialize};
-use crate::core::pubkey::{
-    multiple_pubkey_deserialize, multiple_pubkey_serialize, pubkey_deserialize, pubkey_serialize,
-};
+use std::collections::HashMap;
 
-use serde::{Deserialize, Serialize};
-use solana_sdk::{
-    hash::Hash,
-    instruction::{AccountMeta, Instruction},
-    pubkey::Pubkey,
-    transaction::Transaction,
-};
+use serde::Deserialize;
+use serde_json::{json, Value};
+use solana_sdk::transaction::{Transaction, VersionedTransaction};
 
 #[cfg(feature = "wasm_bindgen")]
 use wasm_bindgen::prelude::*;
 
-// Core -------------------------------------
+use crate::wallet::transaction_v0::TransactionV0Value;
 
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct TransactionValue {
-    #[serde(
-        serialize_with = "hash_serialize",
-        deserialize_with = "hash_deserialize"
-    )]
-    pub recent_blockhash: Hash,
-    #[serde(
-        serialize_with = "pubkey_serialize",
-        deserialize_with = "pubkey_deserialize"
-    )]
-    pub fee_payer: Pubkey,
-    pub nonce_info: Option<()>,
-    pub instructions: Vec<InstructionValue>,
-    #[serde(
-        serialize_with = "multiple_pubkey_serialize",
-        deserialize_with = "multiple_pubkey_deserialize"
-    )]
-    pub signers: Vec<Pubkey>,
-    // TODO: Decide to support signatures fro partial-sign from dApp.
-    // #[serde(with = "short_vec")]
-    // pub signatures: Vec<Signature>,
-}
-
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AccountMetaValue {
-    #[serde(
-        serialize_with = "pubkey_serialize",
-        deserialize_with = "pubkey_deserialize"
-    )]
-    pub pubkey: Pubkey,
-    pub is_signer: bool,
-    pub is_writable: bool,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct InstructionValue {
-    #[serde(
-        serialize_with = "pubkey_serialize",
-        deserialize_with = "pubkey_deserialize"
-    )]
-    pub program_id: Pubkey,
-    #[serde(rename = "keys")]
-    pub accounts: Vec<AccountMetaValue>,
-    pub data: Vec<u8>,
-}
-
-// From -------------------------------------
-
-impl From<AccountMetaValue> for AccountMeta {
-    fn from(meta_value: AccountMetaValue) -> Self {
-        AccountMeta {
-            pubkey: meta_value.pubkey,
-            is_signer: meta_value.is_signer,
-            is_writable: meta_value.is_writable,
-        }
-    }
-}
-
-impl From<InstructionValue> for Instruction {
-    fn from(instruction_value: InstructionValue) -> Self {
-        Instruction {
-            program_id: instruction_value.program_id,
-            accounts: instruction_value
-                .accounts
-                .into_iter()
-                .map(AccountMeta::from)
-                .collect(),
-            data: instruction_value.data,
-        }
-    }
-}
-
-impl From<TransactionValue> for Transaction {
-    fn from(tx_value: TransactionValue) -> Self {
-        let instructions: Vec<Instruction> = tx_value
-            .instructions
-            .into_iter()
-            .map(Instruction::from)
-            .collect();
-
-        let mut tx = Transaction::new_with_payer(&instructions, Some(&tx_value.fee_payer));
-        tx.message.recent_blockhash = tx_value.recent_blockhash;
-
-        tx
-    }
-}
+use super::{transaction::TransactionValue, transaction_v0::TransactionV0ValueNotWorking};
 
 // Fun -------------------------------------
 
@@ -128,9 +32,21 @@ pub fn get_message_data_from_transaction(
     encoding_type: &EncodingType,
 ) -> anyhow::Result<String> {
     let tx_json = serde_json::from_str(tx)?;
-    let tx_value = serde_json::from_value::<TransactionValue>(tx_json).unwrap();
-    let tx = Transaction::from(tx_value);
-    let message_data = tx.message_data();
+    let tx_value = serde_json::from_value::<TransactionValue>(tx_json);
+
+    let message_data = match tx_value {
+        // Legacy
+        Ok(tx_value) => {
+            let tx = Transaction::from(tx_value);
+            tx.message_data()
+        }
+        // V0
+        Err(_) => {
+            let tx_json: TransactionV0Value = serde_json::from_str(tx)?;
+            let tx = VersionedTransaction::from(tx_json);
+            tx.message.serialize()
+        }
+    };
 
     // Encode
     let message_data_string = match encoding_type {
@@ -160,12 +76,9 @@ pub fn get_message_data_from_transactions(
 #[cfg(not(target_arch = "wasm32"))]
 #[cfg(test)]
 mod test {
-
-    use solana_sdk::{system_instruction, transaction::Transaction};
-
-    use crate::tests::mock::*;
-
     use super::*;
+    use crate::tests::mock::*;
+    use solana_sdk::{system_instruction, transaction::Transaction};
 
     #[tokio::test]
     async fn success_get_message_data_bs58_from_transaction() {
@@ -229,4 +142,26 @@ mod test {
 
     //     todo!()
     // }
+
+    #[tokio::test]
+    async fn success_get_message_data_bs58_from_transaction_v0() {
+        // Setup
+        let tx = get_transfer_transaction_v0_string();
+        let message_data_bs58 = get_message_data_bs58_from_transaction(tx.as_str()).unwrap();
+
+        dbg!(&message_data_bs58);
+
+        // // Prove
+        // let (alice_pubkey, recent_blockhash) = get_default_setup();
+        // let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
+        // let mut tx = Transaction::new_with_payer(&[ix], Some(&alice_pubkey));
+        // tx.message.recent_blockhash = recent_blockhash;
+
+        // let message_data = tx.message_data();
+        // let sdk_message_data_bs58 = bs58::encode(message_data).into_string();
+
+        // dbg!(&sdk_message_data_bs58);
+
+        // assert_eq!(message_data_bs58, sdk_message_data_bs58);
+    }
 }
