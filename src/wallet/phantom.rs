@@ -43,7 +43,7 @@ pub fn get_message_data_from_transaction(
         // V0
         Err(_) => {
             let tx_json: TransactionV0Value = serde_json::from_str(tx)?;
-            let tx = VersionedTransaction::from(tx_json);
+            let tx = VersionedTransaction::try_from(tx_json)?;
             tx.message.serialize()
         }
     };
