@@ -185,15 +185,15 @@ pub fn get_transfer_transaction_v0_string(maybe_recent_blockhash: Option<Hash>) 
                 0,
                 0,
                 0,
-                0,
-                152,
-                13,
+                100,
                 0,
                 0,
                 0,
                 0,
-                0
-              ]
+                0,
+                0,
+                0,
+            ]
             }
           }
         ],

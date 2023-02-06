@@ -147,6 +147,7 @@ mod test {
         let mint_pubkey = Pubkey::from_str("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v").unwrap();
 
         // TODO: consider move this to transfer_spl to cross-check input decimals
+        // TODO: use devnet with some mint.
         let client = WasmClient::new_mainnet();
         let account = client.get_account(&mint_pubkey).await.unwrap();
         let mint_info = Mint::unpack(&account.data).unwrap();
@@ -154,7 +155,7 @@ mod test {
         let ui_amount = 0.00001f64;
         let amount = spl_token::ui_amount_to_amount(ui_amount, decimals);
 
-        let message_b64 = client
+        let message_b58 = client
             .get_message_data_bs58_for_transfer_spl(
                 &source_pubkey,
                 &destination_pubkey,
@@ -165,6 +166,6 @@ mod test {
             .await
             .unwrap();
 
-        assert!(!message_b64.is_empty());
+        assert!(!message_b58.is_empty());
     }
 }

@@ -63,9 +63,9 @@ impl TryFrom<CompiledInstructionValue> for CompiledInstruction {
             return Err(TransactionV0ValueError::InvalidCompiledInstructionData);
         }
 
-        let compiled_tx = CompiledInstruction::new(
+        let compiled_tx = CompiledInstruction::new_from_raw_parts(
             value.program_id_index,
-            &value.data,
+            value.data.data,
             value.account_key_indexes,
         );
 
