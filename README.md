@@ -6,12 +6,13 @@ Wrapped `WasmClient` with handy features.
 
 ### Web3
 
-- [ ] Able to use as `phantom` alias.
+- [x] Able to use as `phantom` alias.
 - [ ] Able to prepare `message_data` for sign.
-  - [ ] `connect`.
-  - [ ] `disconnect`.
-  - [ ] `sign_transaction`.
+  - [x] `connect`.
+  - [x] `disconnect`.
+  - [ ] `signTransaction`.
   - [ ] `signAllTransactions`.
+  - [ ] `signAndSendTransactionV0WithLookupTable`.
   - [ ] `signMessage`.
 
 ### Tokens
