@@ -1,7 +1,3 @@
-use std::collections::HashMap;
-
-use serde::Deserialize;
-use serde_json::{json, Value};
 use solana_sdk::transaction::{Transaction, VersionedTransaction};
 
 #[cfg(feature = "wasm_bindgen")]
@@ -83,13 +79,13 @@ mod test {
     #[tokio::test]
     async fn success_get_message_data_bs58_from_transaction() {
         // Setup
-        let tx = get_transfer_transaction_string();
+        let (alice_pubkey, recent_blockhash) = get_default_setup();
+        let tx = get_transfer_transaction_string(Some(recent_blockhash));
         let message_data_bs58 = get_message_data_bs58_from_transaction(tx.as_str()).unwrap();
 
         dbg!(&message_data_bs58);
 
         // Prove
-        let (alice_pubkey, recent_blockhash) = get_default_setup();
         let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
         let mut tx = Transaction::new_with_payer(&[ix], Some(&alice_pubkey));
         tx.message.recent_blockhash = recent_blockhash;
@@ -105,8 +101,9 @@ mod test {
     #[tokio::test]
     async fn success_get_message_data_bs58_from_transactions() {
         // Setup
-        let tx1_string = get_transfer_transaction_string();
-        let tx2_string = get_transfer_transaction_string();
+        let (alice_pubkey, recent_blockhash) = get_default_setup();
+        let tx1_string = get_transfer_transaction_string(Some(recent_blockhash));
+        let tx2_string = get_transfer_transaction_string(Some(recent_blockhash));
         let txs = vec![tx1_string, tx2_string];
 
         let message_data_bs58s = get_message_data_bs58_from_transactions(txs).unwrap();
@@ -114,7 +111,6 @@ mod test {
         dbg!(&message_data_bs58s);
 
         // Prove
-        let (alice_pubkey, recent_blockhash) = get_default_setup();
         let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
         let mut tx = Transaction::new_with_payer(&[ix], Some(&alice_pubkey));
         tx.message.recent_blockhash = recent_blockhash;
@@ -146,13 +142,13 @@ mod test {
     #[tokio::test]
     async fn success_get_message_data_bs58_from_transaction_v0() {
         // Setup
-        let tx = get_transfer_transaction_v0_string();
+        let (alice_pubkey, recent_blockhash) = get_default_setup();
+        let tx = get_transfer_transaction_v0_string(Some(recent_blockhash));
         let message_data_bs58 = get_message_data_bs58_from_transaction(tx.as_str()).unwrap();
 
         dbg!(&message_data_bs58);
 
         // // Prove
-        // let (alice_pubkey, recent_blockhash) = get_default_setup();
         // let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
         // let mut tx = Transaction::new_with_payer(&[ix], Some(&alice_pubkey));
         // tx.message.recent_blockhash = recent_blockhash;

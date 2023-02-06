@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use serde_json::json;
 use solana_sdk::{hash::Hash, pubkey::Pubkey, signature::Keypair, signer::Signer};
 
@@ -38,19 +36,15 @@ pub fn get_alice_keypair() -> Keypair {
 
 pub fn get_default_setup() -> (Pubkey, Hash) {
     let alice_pubkey = get_alice_keypair().pubkey();
-    dbg!(alice_pubkey);
-
-    let recent_blockhash = Hash::new_from_array(
-        Pubkey::from_str("9zb7KBbBo8brCsfMNe9dZhPcohiMVd8LPDJwHa82iNV1")
-            .unwrap()
-            .to_bytes(),
-    );
+    let recent_blockhash = Hash::new_unique();
 
     (alice_pubkey, recent_blockhash)
 }
 
-pub fn get_transfer_transaction_string() -> String {
-    let (alice_pubkey, recent_blockhash) = get_default_setup();
+pub fn get_transfer_transaction_string(maybe_recent_blockhash: Option<Hash>) -> String {
+    let (alice_pubkey, new_recent_blockhash) = get_default_setup();
+    let recent_blockhash = maybe_recent_blockhash.unwrap_or(new_recent_blockhash);
+
     json!({
       "recentBlockhash": recent_blockhash.to_string(),
       "feePayer": alice_pubkey.to_string(),
@@ -93,8 +87,10 @@ pub fn get_transfer_transaction_string() -> String {
     .to_string()
 }
 
-pub fn get_transfer_transaction_v0_string() -> String {
-    let (alice_pubkey, recent_blockhash) = get_default_setup();
+pub fn get_transfer_transaction_v0_string(maybe_recent_blockhash: Option<Hash>) -> String {
+    let (alice_pubkey, new_recent_blockhash) = get_default_setup();
+    let recent_blockhash = maybe_recent_blockhash.unwrap_or(new_recent_blockhash);
+
     json!({
       "signatures": [
         {
@@ -171,10 +167,10 @@ pub fn get_transfer_transaction_v0_string() -> String {
           "numReadonlyUnsignedAccounts": 1
         },
         "staticAccountKeys": [
-          "DcJGXTE7L1XQtFSdvBv2NPkGCxQ1cziem1yXnqfy2rVy",
+          alice_pubkey.to_string(),
           "11111111111111111111111111111111"
         ],
-        "recentBlockhash": "6CGf7cKy8xrCuLLNw76VybbHduAeVZy6LEVtAAu8iJDM",
+        "recentBlockhash": recent_blockhash.to_string(),
         "compiledInstructions": [
           {
             "programIdIndex": 1,

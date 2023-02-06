@@ -33,7 +33,7 @@ pub struct TransactionValue {
         deserialize_with = "multiple_pubkey_deserialize"
     )]
     pub signers: Vec<Pubkey>,
-    // TODO: Decide to support signatures fro partial-sign from dApp.
+    // TODO: Decide to support signatures for partial-sign from dApp.
     // #[serde(with = "short_vec")]
     // pub signatures: Vec<Signature>,
 }
