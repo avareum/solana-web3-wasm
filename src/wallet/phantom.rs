@@ -33,7 +33,7 @@ pub fn get_message_data_from_transaction(
     let message_data = match tx_value {
         // Legacy
         Ok(tx_value) => {
-            let tx = Transaction::from(tx_value);
+            let tx = Transaction::try_from(tx_value)?;
             tx.message_data()
         }
         // V0
@@ -77,11 +77,12 @@ mod test {
     use super::*;
     use crate::tests::mock::*;
     use solana_sdk::{
-        hash::Hash,
         instruction::CompiledInstruction,
-        message::{v0, MessageHeader, VersionedMessage},
+        message::{
+            v0::{self, MessageAddressTableLookup},
+            MessageHeader, VersionedMessage,
+        },
         pubkey::Pubkey,
-        signature::Signer,
         system_instruction,
         transaction::Transaction,
     };
@@ -128,20 +129,6 @@ mod test {
         assert_eq!(message_data_bs58s, sdk_message_data_bs58s);
     }
 
-    // #[tokio::test]
-    // async fn test_message_from_string() {
-    //     let alice_pubkey = get_alice_keypair().pubkey();
-    //     let recent_blockhash = Hash::new_from_array(
-    //         Pubkey::from_str("9zb7KBbBo8brCsfMNe9dZhPcohiMVd8LPDJwHa82iNV1")
-    //             .unwrap()
-    //             .to_bytes(),
-    //     );
-    //     let message_data_bs58 = [104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100];
-
-    //     println!("{alice_pubkey},{recent_blockhash},{message_data_bs58:?}");
-    //     todo!()
-    // }
-
     #[tokio::test]
     async fn success_get_message_data_bs58_from_transaction_v0() {
         // Setup
@@ -186,6 +173,70 @@ mod test {
                 accounts: ix0.accounts.clone(),
                 data: ix0.data.clone(),
             }],
+        });
+
+        let sdk_message_data_bs58 = bs58::encode(version_0_message.serialize()).into_string();
+
+        assert_eq!(message_data_bs58, sdk_message_data_bs58);
+    }
+
+    #[tokio::test]
+    async fn success_get_message_data_bs58_from_transaction_v0_with_address_table_lookups() {
+        // Setup
+        let (alice_pubkey, recent_blockhash) = get_default_setup();
+        let mocked_tx_v0 =
+            get_transfer_transaction_v0_with_address_table_lookups_string(Some(recent_blockhash));
+        let message_data_bs58 =
+            get_message_data_bs58_from_transaction(mocked_tx_v0.as_str()).unwrap();
+
+        // Prove
+        let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
+        let mut tx = Transaction::new_with_payer(&[ix], Some(&alice_pubkey));
+        tx.message.recent_blockhash = recent_blockhash;
+
+        // Create v0 compatible message
+        let alice_keypair = get_alice_keypair();
+        let versioned_transaction = match VersionedTransaction::try_new(
+            VersionedMessage::Legacy(tx.message),
+            &[&alice_keypair],
+        ) {
+            Ok(tx) => {
+                assert_eq!(tx.verify_with_results(), vec![true; 1]);
+                tx
+            }
+            Err(err) => {
+                assert_eq!(Some(err), None);
+                panic!("error");
+            }
+        };
+
+        let version_0_message = VersionedMessage::V0(v0::Message {
+            header: MessageHeader {
+                num_required_signatures: 2,
+                num_readonly_signed_accounts: 0,
+                num_readonly_unsigned_accounts: 4,
+            },
+            recent_blockhash,
+            account_keys: vec![
+                alice_pubkey,
+                Pubkey::from_str("FCPPrgV66xj2uvegqgEVJ6cqkKNULKsMXxkSpzhauqdA").unwrap(),
+                Pubkey::from_str("magyVRKhxESvpzvQd4qEc4dZfv8e9u5zTMam3BSk22T").unwrap(),
+                Pubkey::from_str("8RjnD8Jy6A88WmfqXpGda7tvRzczqoNyA3usCxtME51a").unwrap(),
+                Pubkey::from_str("7XLWyPdHWK8Fs6s1yzWnheFS61e2C6CUP7oTYH5VW34n").unwrap(),
+                Pubkey::from_str("4Sz4W2pC1YaLZyVP6ptNXNf727c6BtnB5BEYNQhHdCxN").unwrap(),
+                Pubkey::from_str("p9c32PDrUYuLvy9MsfmWa4ALUdUE7oaRAKmg6URmuR6").unwrap(),
+                Pubkey::from_str("ComputeBudget111111111111111111111111111111").unwrap(),
+                Pubkey::from_str("GmgkeeJtcjHgeiSDdT5gxznUDr5ygq9jo8tmA4ny7ziv").unwrap(),
+                Pubkey::default(),
+                Pubkey::from_str("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA").unwrap(),
+            ],
+            address_table_lookups: vec![MessageAddressTableLookup {
+                account_key: Pubkey::from_str("CCFK1x9aUeHoeRvbo87iq52NcVbz4Ff1cpfMScKZy4fy")
+                    .unwrap(),
+                writable_indexes: vec![57, 58, 59],
+                readonly_indexes: vec![0, 60],
+            }],
+            instructions: versioned_transaction.message.instructions().to_vec(),
         });
 
         let sdk_message_data_bs58 = bs58::encode(version_0_message.serialize()).into_string();

@@ -1,15 +1,33 @@
+use std::collections::HashMap;
+
 use crate::core::hash::{hash_deserialize, hash_serialize};
 use crate::core::pubkey::{
     multiple_pubkey_deserialize, multiple_pubkey_serialize, pubkey_deserialize, pubkey_serialize,
 };
 
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use solana_sdk::signature::Signature;
 use solana_sdk::{
     hash::Hash,
     instruction::{AccountMeta, Instruction},
     pubkey::Pubkey,
     transaction::Transaction,
 };
+
+use thiserror::Error;
+
+// Errors -------------------------------------
+
+#[derive(Debug, Error, Clone, PartialEq, Eq)]
+pub enum TransactionValueError {
+    #[error("Expected u64")]
+    ExpectedU64,
+    #[error("Invalid Instruction")]
+    InvalidInstruction,
+    #[error("Invalid AccountMeta")]
+    InvalidAccountMeta,
+}
 
 // Core -------------------------------------
 
@@ -33,9 +51,7 @@ pub struct TransactionValue {
         deserialize_with = "multiple_pubkey_deserialize"
     )]
     pub signers: Vec<Pubkey>,
-    // TODO: Decide to support signatures for partial-sign from dApp.
-    // #[serde(with = "short_vec")]
-    // pub signatures: Vec<Signature>,
+    pub signatures: Option<Vec<HashMap<String, Value>>>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -65,41 +81,74 @@ pub struct InstructionValue {
 
 // From -------------------------------------
 
-impl From<AccountMetaValue> for AccountMeta {
-    fn from(meta_value: AccountMetaValue) -> Self {
-        AccountMeta {
+impl TryFrom<AccountMetaValue> for AccountMeta {
+    type Error = TransactionValueError;
+
+    fn try_from(meta_value: AccountMetaValue) -> Result<Self, Self::Error> {
+        Ok(AccountMeta {
             pubkey: meta_value.pubkey,
             is_signer: meta_value.is_signer,
             is_writable: meta_value.is_writable,
-        }
+        })
     }
 }
 
-impl From<InstructionValue> for Instruction {
-    fn from(instruction_value: InstructionValue) -> Self {
-        Instruction {
+impl TryFrom<InstructionValue> for Instruction {
+    type Error = TransactionValueError;
+
+    fn try_from(instruction_value: InstructionValue) -> Result<Self, Self::Error> {
+        if instruction_value.accounts.is_empty() {
+            return Err(TransactionValueError::InvalidInstruction);
+        }
+
+        let accounts = instruction_value
+            .accounts
+            .into_iter()
+            .map(AccountMeta::try_from)
+            .collect::<Result<Vec<_>, _>>()?;
+
+        let ix = Instruction {
             program_id: instruction_value.program_id,
-            accounts: instruction_value
-                .accounts
-                .into_iter()
-                .map(AccountMeta::from)
-                .collect(),
+            accounts,
             data: instruction_value.data,
-        }
+        };
+
+        Ok(ix)
     }
 }
 
-impl From<TransactionValue> for Transaction {
-    fn from(tx_value: TransactionValue) -> Self {
-        let instructions: Vec<Instruction> = tx_value
+impl TryFrom<TransactionValue> for Transaction {
+    type Error = TransactionValueError;
+
+    fn try_from(value: TransactionValue) -> Result<Self, Self::Error> {
+        let instructions: Vec<Instruction> = value
             .instructions
             .into_iter()
-            .map(Instruction::from)
-            .collect();
+            .map(Instruction::try_from)
+            .collect::<Result<Vec<_>, _>>()?;
 
-        let mut tx = Transaction::new_with_payer(&instructions, Some(&tx_value.fee_payer));
-        tx.message.recent_blockhash = tx_value.recent_blockhash;
+        let mut tx = Transaction::new_with_payer(&instructions, Some(&value.fee_payer));
+        tx.message.recent_blockhash = value.recent_blockhash;
 
-        tx
+        let signatures = match value.signatures {
+            Some(signatures) => signatures
+                .into_iter()
+                .map(|s| {
+                    let u8s = s
+                        .into_values()
+                        .map(|e| match e.as_u64() {
+                            Some(num) => Ok(num as u8),
+                            None => Err(TransactionValueError::ExpectedU64),
+                        })
+                        .collect::<Result<Vec<u8>, TransactionValueError>>()?;
+                    Ok(Signature::new(&u8s))
+                })
+                .collect::<Result<Vec<Signature>, TransactionValueError>>()?,
+            None => vec![],
+        };
+
+        tx.signatures = signatures;
+
+        Ok(tx)
     }
 }

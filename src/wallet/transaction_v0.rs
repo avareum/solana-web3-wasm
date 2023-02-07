@@ -19,6 +19,8 @@ use solana_sdk::{
 
 use thiserror::Error;
 
+// Errors -------------------------------------
+
 #[derive(Debug, Error, Clone, PartialEq, Eq)]
 pub enum TransactionV0ValueError {
     #[error("Expected u64")]
@@ -28,6 +30,8 @@ pub enum TransactionV0ValueError {
     #[error("Invalid InvalidCompiledInstructionData")]
     InvalidCompiledInstructionData,
 }
+
+// Core -------------------------------------
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
