@@ -203,15 +203,15 @@ mod test {
 
         let message_data_bs58s = get_message_data_bs58_from_transactions(mocked_txs_v0).unwrap();
 
-        // Prove
+        // Prove tx0
         let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
-        let mut tx = Transaction::new_with_payer(&[ix], Some(&alice_pubkey));
-        tx.message.recent_blockhash = recent_blockhash;
+        let mut tx0 = Transaction::new_with_payer(&[ix], Some(&alice_pubkey));
+        tx0.message.recent_blockhash = recent_blockhash;
 
         // Create v0 compatible message
         let alice_keypair = get_alice_keypair();
-        let versioned_transaction = match VersionedTransaction::try_new(
-            VersionedMessage::Legacy(tx.message),
+        let versioned_transaction0 = match VersionedTransaction::try_new(
+            VersionedMessage::Legacy(tx0.message),
             &[&alice_keypair],
         ) {
             Ok(tx) => {
@@ -223,7 +223,9 @@ mod test {
                 panic!("error");
             }
         };
+        println!("versioned_transaction0:{:#?}", versioned_transaction0);
 
+        // Prove tx1
         let version_0_message = VersionedMessage::V0(v0::Message {
             header: MessageHeader {
                 num_required_signatures: 2,
@@ -250,14 +252,41 @@ mod test {
                 writable_indexes: vec![57, 58, 59],
                 readonly_indexes: vec![0, 60],
             }],
-            instructions: versioned_transaction.message.instructions().to_vec(),
+            instructions: versioned_transaction0.message.instructions().to_vec(),
         });
 
-        // println!("version_0_message:{:#?}", version_0_message);
-        let sdk_message_data_bs58 = bs58::encode(version_0_message.serialize()).into_string();
+        use solana_sdk::signature::Signature;
+
+        let versioned_transaction1 = match VersionedTransaction::try_new(
+            version_0_message,
+            &[&alice_keypair],
+        ) {
+            Ok(mut tx) => {
+                tx.signatures = vec![
+                    solana_sdk::signature::Signature::default(),
+                    Signature::from_str("2gDpLGM7mtrVTZNKKnpnEWKvHmfE1SurpsXgktFXoifSdcGmiGjrdhnXrjTo7GNgaNQAgpREoUN9o69XVBKQCzUg").unwrap(),
+                    ];
+                assert_eq!(tx.verify_with_results(), vec![true; 1]);
+                tx
+            }
+            Err(err) => {
+                dbg!(&err);
+                assert_eq!(Some(err), None);
+                panic!("error");
+            }
+        };
+        println!("versioned_transaction1:{:#?}", versioned_transaction1);
+
+        let sdk_message_data_bs58_0 =
+            bs58::encode(versioned_transaction0.message.serialize()).into_string();
+        let sdk_message_data_bs58_1 =
+            bs58::encode(versioned_transaction1.message.serialize()).into_string();
 
         println!("1️⃣ message_data_bs58s:{:#?}", message_data_bs58s);
-        println!("2️⃣ sdk_message_data_bs58:{:#?}", sdk_message_data_bs58);
+        println!(
+            "2️⃣ sdk_message_data_bs58:{:#?}",
+            [sdk_message_data_bs58_0, sdk_message_data_bs58_1]
+        );
         // assert_eq!(message_data_bs58s[0], sdk_message_data_bs58);
     }
 }
