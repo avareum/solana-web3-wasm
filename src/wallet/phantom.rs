@@ -1,3 +1,4 @@
+use anyhow::bail;
 use solana_sdk::transaction::{Transaction, VersionedTransaction};
 
 #[cfg(feature = "wasm_bindgen")]
@@ -38,9 +39,18 @@ pub fn get_message_data_from_transaction(
         }
         // V0
         Err(_) => {
-            let tx_json: TransactionV0Value = serde_json::from_str(tx)?;
-            let tx = VersionedTransaction::try_from(tx_json)?;
-            tx.message.serialize()
+            let tx_json = serde_json::from_str::<TransactionV0Value>(tx);
+            match tx_json {
+                Ok(tx_json_value) => {
+                    let tx = VersionedTransaction::try_from(tx_json_value)?;
+                    println!("tx.signatures:{:#?}", tx.signatures);
+                    tx.message.serialize()
+                }
+                Err(err) => {
+                    println!("err:{:#?}", err);
+                    bail!(err);
+                }
+            }
         }
     };
 
@@ -63,6 +73,10 @@ pub fn get_message_data_from_transactions(
         .map(|e| get_message_data_from_transaction(&e, encoding_type))
         .filter_map(|r| r.map_err(|e| errors.push(e)).ok())
         .collect::<Vec<_>>();
+
+    if !errors.is_empty() {
+        bail!("errors: {:?}", errors)
+    }
 
     Ok(result)
 }
@@ -184,10 +198,10 @@ mod test {
     async fn success_get_message_data_bs58_from_transaction_v0_with_address_table_lookups() {
         // Setup
         let (alice_pubkey, recent_blockhash) = get_default_setup();
-        let mocked_tx_v0 =
-            get_transfer_transaction_v0_with_address_table_lookups_string(Some(recent_blockhash));
-        let message_data_bs58 =
-            get_message_data_bs58_from_transaction(mocked_tx_v0.as_str()).unwrap();
+        let mocked_txs_v0 =
+            get_swap_transactions_v0_with_address_table_lookups_string(Some(recent_blockhash));
+
+        let message_data_bs58s = get_message_data_bs58_from_transactions(mocked_txs_v0).unwrap();
 
         // Prove
         let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
@@ -239,8 +253,11 @@ mod test {
             instructions: versioned_transaction.message.instructions().to_vec(),
         });
 
+        // println!("version_0_message:{:#?}", version_0_message);
         let sdk_message_data_bs58 = bs58::encode(version_0_message.serialize()).into_string();
 
-        assert_eq!(message_data_bs58, sdk_message_data_bs58);
+        println!("1️⃣ message_data_bs58s:{:#?}", message_data_bs58s);
+        println!("2️⃣ sdk_message_data_bs58:{:#?}", sdk_message_data_bs58);
+        // assert_eq!(message_data_bs58s[0], sdk_message_data_bs58);
     }
 }

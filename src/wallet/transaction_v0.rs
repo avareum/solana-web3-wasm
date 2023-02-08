@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
 use crate::core::hash::{hash_deserialize, hash_serialize};
-use crate::core::pubkey::{multiple_pubkey_deserialize, multiple_pubkey_serialize};
+use crate::core::pubkey::{
+    multiple_pubkey_deserialize, multiple_pubkey_serialize, pubkey_deserialize, pubkey_serialize,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -27,8 +29,10 @@ pub enum TransactionV0ValueError {
     ExpectedU64,
     #[error("Invalid CompiledInstruction")]
     InvalidCompiledInstruction,
-    #[error("Invalid InvalidCompiledInstructionData")]
+    #[error("Invalid CompiledInstructionData")]
     InvalidCompiledInstructionData,
+    #[error("Invalid MessageAddressTableLookup")]
+    InvalidMessageAddressTableLookup,
 }
 
 // Core -------------------------------------
@@ -48,7 +52,36 @@ pub struct TransactionV0MessageValue {
     )]
     recent_blockhash: Hash,
     compiled_instructions: Vec<CompiledInstructionValue>,
-    address_table_lookups: Vec<v0::MessageAddressTableLookup>,
+    address_table_lookups: Vec<MessageAddressTableLookupValue>,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MessageAddressTableLookupValue {
+    #[serde(
+        serialize_with = "pubkey_serialize",
+        deserialize_with = "pubkey_deserialize"
+    )]
+    /// Address lookup table account key
+    pub account_key: Pubkey,
+    /// List of indexes used to load writable account addresses
+    pub writable_indexes: Vec<u8>,
+    /// List of indexes used to load readonly account addresses
+    pub readonly_indexes: Vec<u8>,
+}
+
+impl TryFrom<MessageAddressTableLookupValue> for v0::MessageAddressTableLookup {
+    type Error = TransactionV0ValueError;
+
+    fn try_from(value: MessageAddressTableLookupValue) -> Result<Self, Self::Error> {
+        let message_address_table_lookup = v0::MessageAddressTableLookup {
+            account_key: value.account_key,
+            writable_indexes: value.writable_indexes,
+            readonly_indexes: value.readonly_indexes,
+        };
+
+        Ok(message_address_table_lookup)
+    }
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -95,12 +128,19 @@ impl TryFrom<TransactionV0MessageValue> for VersionedMessage {
             .collect::<Result<Vec<_>, _>>()
             .map_err(|_| TransactionV0ValueError::InvalidCompiledInstruction)?;
 
+        let address_table_lookups = value
+            .address_table_lookups
+            .into_iter()
+            .map(v0::MessageAddressTableLookup::try_from)
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|_| TransactionV0ValueError::InvalidMessageAddressTableLookup)?;
+
         let versioned_message = VersionedMessage::V0(v0::Message {
             header: value.header,
             account_keys: value.static_account_keys,
             recent_blockhash: value.recent_blockhash,
             instructions,
-            address_table_lookups: value.address_table_lookups,
+            address_table_lookups,
         });
 
         Ok(versioned_message)
@@ -110,7 +150,7 @@ impl TryFrom<TransactionV0MessageValue> for VersionedMessage {
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TransactionV0Value {
-    pub signatures: Vec<HashMap<String, Value>>,
+    pub signatures: Option<Vec<HashMap<String, Value>>>,
     pub message: TransactionV0MessageValue,
 }
 
@@ -118,20 +158,22 @@ impl TryFrom<TransactionV0Value> for VersionedTransaction {
     type Error = TransactionV0ValueError;
 
     fn try_from(value: TransactionV0Value) -> Result<Self, Self::Error> {
-        let signatures = value
-            .signatures
-            .into_iter()
-            .map(|s| {
-                let u8s = s
-                    .into_values()
-                    .map(|e| match e.as_u64() {
-                        Some(num) => Ok(num as u8),
-                        None => Err(TransactionV0ValueError::ExpectedU64),
-                    })
-                    .collect::<Result<Vec<u8>, TransactionV0ValueError>>()?;
-                Ok(Signature::new(&u8s))
-            })
-            .collect::<Result<Vec<Signature>, TransactionV0ValueError>>()?;
+        let signatures = match value.signatures {
+            Some(signatures) => signatures
+                .into_iter()
+                .map(|s| {
+                    let u8s = s
+                        .into_values()
+                        .map(|e| match e.as_u64() {
+                            Some(num) => Ok(num as u8),
+                            None => Err(TransactionV0ValueError::ExpectedU64),
+                        })
+                        .collect::<Result<Vec<u8>, TransactionV0ValueError>>()?;
+                    Ok(Signature::new(&u8s))
+                })
+                .collect::<Result<Vec<Signature>, TransactionV0ValueError>>()?,
+            None => vec![],
+        };
         let message = VersionedMessage::try_from(value.message)?;
 
         Ok(VersionedTransaction {

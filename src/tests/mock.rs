@@ -203,72 +203,68 @@ pub fn get_transfer_transaction_v0_string(maybe_recent_blockhash: Option<Hash>) 
     .to_string()
 }
 
-pub fn get_transfer_transaction_v0_with_address_table_lookups_string(
+pub fn get_swap_transactions_v0_with_address_table_lookups_string(
     maybe_recent_blockhash: Option<Hash>,
-) -> String {
+) -> Vec<String> {
     let (alice_pubkey, new_recent_blockhash) = get_default_setup();
     let recent_blockhash = maybe_recent_blockhash.unwrap_or(new_recent_blockhash);
 
-    json!({
-      "id": 2,
-      "method": "signAllTransactions",
-      "params": {
-        "network": "mainnet-beta",
-        "transactions": [
-          {
-            "recentBlockhash": recent_blockhash.to_string(),
-            "feePayer": alice_pubkey.to_string(),
-            "nonceInfo": null,
-            "instructions": [
-              {
-                "keys": [
-                  {
-                    "pubkey": alice_pubkey.to_string(),
-                    "isSigner": true,
-                    "isWritable": true
-                  },
-                  {
-                    "pubkey": "magyVRKhxESvpzvQd4qEc4dZfv8e9u5zTMam3BSk22T",
-                    "isSigner": false,
-                    "isWritable": true
-                  },
-                  {
-                    "pubkey": alice_pubkey.to_string(),
-                    "isSigner": false,
-                    "isWritable": false
-                  },
-                  {
-                    "pubkey": "So11111111111111111111111111111111111111112",
-                    "isSigner": false,
-                    "isWritable": false
-                  },
-                  {
-                    "pubkey": "11111111111111111111111111111111",
-                    "isSigner": false,
-                    "isWritable": false
-                  },
-                  {
-                    "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-                    "isSigner": false,
-                    "isWritable": false
-                  },
-                  {
-                    "pubkey": "SysvarRent111111111111111111111111111111111",
-                    "isSigner": false,
-                    "isWritable": false
-                  }
-                ],
-                "programId": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
-                "data": [
-                  1
-                ]
-              }
-            ],
-            "signers": [
-              alice_pubkey.to_string()
-            ]
-          },
-          {
+    vec![
+        json!({
+          "recentBlockhash": recent_blockhash.to_string(),
+          "feePayer": alice_pubkey.to_string(),
+          "nonceInfo": null,
+          "instructions": [
+            {
+              "keys": [
+                {
+                  "pubkey": alice_pubkey.to_string(),
+                  "isSigner": true,
+                  "isWritable": true
+                },
+                {
+                  "pubkey": "magyVRKhxESvpzvQd4qEc4dZfv8e9u5zTMam3BSk22T",
+                  "isSigner": false,
+                  "isWritable": true
+                },
+                {
+                  "pubkey": alice_pubkey.to_string(),
+                  "isSigner": false,
+                  "isWritable": false
+                },
+                {
+                  "pubkey": "So11111111111111111111111111111111111111112",
+                  "isSigner": false,
+                  "isWritable": false
+                },
+                {
+                  "pubkey": "11111111111111111111111111111111",
+                  "isSigner": false,
+                  "isWritable": false
+                },
+                {
+                  "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                  "isSigner": false,
+                  "isWritable": false
+                },
+                {
+                  "pubkey": "SysvarRent111111111111111111111111111111111",
+                  "isSigner": false,
+                  "isWritable": false
+                }
+              ],
+              "programId": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+              "data": [
+                1
+              ]
+            }
+          ],
+          "signers": [
+            alice_pubkey.to_string()
+          ]
+        })
+        .to_string(),
+        json!({
             "signatures": [
               {
                 "0": 0,
@@ -607,8 +603,7 @@ pub fn get_transfer_transaction_v0_with_address_table_lookups_string(
               ]
             }
           }
-        ]
-      }
-    })
-    .to_string()
+        )
+        .to_string(),
+    ]
 }
