@@ -51,9 +51,9 @@ impl TokenTransfer for WasmClient {
 
         // 2. Serialize message to bs58
         let message = Message::new(&instructions, Some(source));
-        let message_b64 = bs58::encode(message.serialize()).into_string();
+        let message_b58 = bs58::encode(message.serialize()).into_string();
 
-        Ok(message_b64)
+        Ok(message_b58)
     }
 
     async fn get_message_data_bs58_for_transfer_spl(
@@ -120,9 +120,9 @@ impl TokenTransfer for WasmClient {
 
         // 3. Serialize message to bs58
         let message = Message::new(&instructions, Some(source));
-        let message_b64 = bs58::encode(message.serialize()).into_string();
+        let message_b58 = bs58::encode(message.serialize()).into_string();
 
-        Ok(message_b64)
+        Ok(message_b58)
     }
 }
 
