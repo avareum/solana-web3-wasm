@@ -2228,11 +2228,12 @@ dependencies = [
 
 [[package]]
 name = "solana-web3-wasm"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "anyhow",
  "async-trait",
  "base64 0.13.1",
+ "bincode",
  "borsh",
  "bs58",
  "fluvio-wasm-timer",

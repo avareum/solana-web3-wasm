@@ -90,30 +90,13 @@ pub fn get_encoded_versioned_transaction_from_string(
 ) -> anyhow::Result<String> {
     // Parse transaction
     let tx = get_versioned_transaction_from_string(tx_str)?;
-    let message_data = tx.message.serialize();
+    let message_data = bincode::serialize(&tx)?;
     let message_data_string = match encoding_type {
         EncodingType::Base58 => bs58::encode(message_data).into_string(),
         EncodingType::Base64 => base64::encode(message_data),
     };
 
-    match tx.version() {
-        TransactionVersion::LEGACY => Ok(message_data_string),
-        TransactionVersion::Number(0) => {
-            // TODO: optional for whole tx?
-            // let tx_string = serde_json::to_string::<VersionedTransaction>(&tx)?;
-
-            // Custom format: signatures as slice
-            let tx_value = json!({
-                "signatures": &tx.signatures.as_slice() ,
-                "message": message_data_string,
-            });
-
-            let tx_string = serde_json::to_string(&tx_value)?;
-            dbg!(&tx_string);
-            Ok(tx_string)
-        }
-        _ => bail!("expected supported tx version"),
-    }
+    Ok(message_data_string)
 }
 
 pub fn get_multiple_versioned_transactions_from_string(
