@@ -1,6 +1,5 @@
 use anyhow::bail;
-use serde_json::json;
-use solana_sdk::transaction::{Transaction, TransactionVersion, VersionedTransaction};
+use solana_sdk::transaction::{Transaction, VersionedTransaction};
 
 #[cfg(feature = "wasm_bindgen")]
 use wasm_bindgen::prelude::*;
