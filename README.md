@@ -6,14 +6,12 @@ Wrapped `WasmClient` with handy features.
 
 ### Web3
 
-- [ ] Support `message_data`.
-  - [x] `connect`.
-  - [x] `disconnect`.
-  - [x] `signMessage`.
-  - [x] `signTransaction`.
-  - [x] `signAllTransactions`.
-  - [ ] `signAndSendTransactionV0WithLookupTable`.
-- [ ] Support `signatures`.
+- [x] `connect`.
+- [x] `disconnect`.
+- [x] `signMessage`.
+- [x] `signTransaction`.
+- [x] `signAllTransactions`.
+- [x] `signAndSendTransactionV0WithLookupTable`.
 
 ### Tokens
 
