@@ -237,7 +237,20 @@ mod test {
         let mocked_txs_v0 =
             get_swap_transactions_v0_with_address_table_lookups_string(Some(recent_blockhash));
 
+        let message_data_bs64 = get_encoded_versioned_transaction_from_string(
+            mocked_txs_v0[0].as_str(),
+            &EncodingType::Base64,
+        );
+        println!("{message_data_bs64:?}");
+
+        let message_data_bs58 = get_encoded_versioned_transaction_from_string(
+            mocked_txs_v0[0].as_str(),
+            &EncodingType::Base58,
+        );
+        println!("{message_data_bs58:?}");
+
         let message_data_bs58s = get_multiple_message_data_bs58_from_string(mocked_txs_v0).unwrap();
+        println!("{message_data_bs58s:#?}");
 
         // Prove tx0
         let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
