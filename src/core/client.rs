@@ -58,6 +58,6 @@ impl Web3WasmClient for WasmClient {
     }
 
     fn new_testnet() -> Self {
-        Web3WasmClient::new(&EndPoint::Devnet)
+        Web3WasmClient::new(&EndPoint::Testnet)
     }
 }
