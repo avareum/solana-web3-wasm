@@ -1,6 +1,6 @@
 [package]
 name = "solana-web3-wasm"
-version = "0.7.0"
+version = "0.8.0"
 edition = "2021"
 
 [lib]
@@ -19,10 +19,10 @@ strum_macros = "0.24"
 
 ## Solana
 solana-sdk = "=1.14.11"
-# solana-client-wasm = { git = "https://github.com/avareum/solana-playground", rev="afd6db1" }
-solana-client-wasm = { path = "../solana-playground/wasm/solana-client" }
-# solana-extra-wasm = { git = "https://github.com/avareum/solana-playground", rev="afd6db1" }
-solana-extra-wasm = { path = "../solana-playground/wasm/utils/solana-extra" }
+solana-client-wasm = { git = "https://github.com/avareum/solana-playground", rev="017ddb5" }
+# solana-client-wasm = { path = "../solana-playground/wasm/solana-client" }
+solana-extra-wasm = { git = "https://github.com/avareum/solana-playground", rev="017ddb5" }
+# solana-extra-wasm = { path = "../solana-playground/wasm/utils/solana-extra" }
 
 ### Transfer
 spl-associated-token-account = { version = "1.1.2", optional = true }
