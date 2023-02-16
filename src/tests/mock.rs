@@ -607,3 +607,231 @@ pub fn get_swap_transactions_v0_with_address_table_lookups_string(
         .to_string(),
     ]
 }
+
+pub fn get_tulip_vault_transactions_string(maybe_recent_blockhash: Option<Hash>) -> String {
+    let (alice_pubkey, new_recent_blockhash) = get_default_setup();
+    let recent_blockhash = maybe_recent_blockhash.unwrap_or(new_recent_blockhash);
+
+    json!({
+          "recentBlockhash": recent_blockhash.to_string(),
+      "feePayer": null,
+      "nonceInfo": null,
+      "instructions": [
+        {
+          "keys": [
+            {
+              "pubkey": alice_pubkey.to_string(),
+              "isSigner": true,
+              "isWritable": false
+            },
+            {
+              "pubkey": "3wPiV9inTGexMZjp6x5Amqwp2sRNtpSheG8Hbv2rgq8W",
+              "isSigner": false,
+              "isWritable": false
+            },
+            {
+              "pubkey": "5RBtEnNYEVNRFfQsnudSFkC5cnRQMKTWp3fekfVmJEpD",
+              "isSigner": false,
+              "isWritable": true
+            },
+            {
+              "pubkey": "2aEH7K3tJUL2fwR1se16HndTLUWYcKQvL3qj7G7uaYu1",
+              "isSigner": false,
+              "isWritable": true
+            },
+            {
+              "pubkey": "9zFiwnpYEYC9tNFq5rSn54tmWYDX6dRyys9YT9TYpws2",
+              "isSigner": false,
+              "isWritable": true
+            },
+            {
+              "pubkey": "Cvvh8nsKZet59nsDDo3orMa3rZnPWQhpgrMCVcRDRgip",
+              "isSigner": false,
+              "isWritable": true
+            },
+            {
+              "pubkey": "ykxD9jdJvKK8F1CnDZrnfEDz6zCC886VrwBvVgdHrCd",
+              "isSigner": false,
+              "isWritable": true
+            },
+            {
+              "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+              "isSigner": false,
+              "isWritable": false
+            },
+            {
+              "pubkey": "SysvarRent111111111111111111111111111111111",
+              "isSigner": false,
+              "isWritable": false
+            },
+            {
+              "pubkey": "11111111111111111111111111111111",
+              "isSigner": false,
+              "isWritable": false
+            }
+          ],
+          "programId": "TLPv2tuSVvn3fSk8RgW3yPddkp5oFivzZV3rA9hQxtX",
+          "data": [
+            55,
+            114,
+            97,
+            238,
+            33,
+            173,
+            193,
+            225,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "keys": [
+            {
+              "pubkey": alice_pubkey.to_string(),
+              "isSigner": true,
+              "isWritable": true
+            },
+            {
+              "pubkey": "9zFiwnpYEYC9tNFq5rSn54tmWYDX6dRyys9YT9TYpws2",
+              "isSigner": false,
+              "isWritable": true
+            },
+            {
+              "pubkey": "ykxD9jdJvKK8F1CnDZrnfEDz6zCC886VrwBvVgdHrCd",
+              "isSigner": false,
+              "isWritable": false
+            },
+            {
+              "pubkey": "Cvvh8nsKZet59nsDDo3orMa3rZnPWQhpgrMCVcRDRgip",
+              "isSigner": false,
+              "isWritable": false
+            },
+            {
+              "pubkey": "11111111111111111111111111111111",
+              "isSigner": false,
+              "isWritable": false
+            },
+            {
+              "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+              "isSigner": false,
+              "isWritable": false
+            },
+            {
+              "pubkey": "SysvarRent111111111111111111111111111111111",
+              "isSigner": false,
+              "isWritable": false
+            }
+          ],
+          "programId": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+          "data": []
+        },
+        {
+          "keys": [
+            {
+              "pubkey": alice_pubkey.to_string(),
+              "isSigner": true,
+              "isWritable": false
+            },
+            {
+              "pubkey": "3wPiV9inTGexMZjp6x5Amqwp2sRNtpSheG8Hbv2rgq8W",
+              "isSigner": false,
+              "isWritable": true
+            },
+            {
+              "pubkey": "5RBtEnNYEVNRFfQsnudSFkC5cnRQMKTWp3fekfVmJEpD",
+              "isSigner": false,
+              "isWritable": true
+            },
+            {
+              "pubkey": "ykxD9jdJvKK8F1CnDZrnfEDz6zCC886VrwBvVgdHrCd",
+              "isSigner": false,
+              "isWritable": true
+            },
+            {
+              "pubkey": "14fdy6YXbhDgnVQz4VcgSGgUcZ35eE48SKDrfqF87NUP",
+              "isSigner": false,
+              "isWritable": false
+            },
+            {
+              "pubkey": "36KtHLHxcGnrfEb2GLwPcbN9nHUkeoi3gd6rMQj8wwVj",
+              "isSigner": false,
+              "isWritable": true
+            },
+            {
+              "pubkey": "Cvvh8nsKZet59nsDDo3orMa3rZnPWQhpgrMCVcRDRgip",
+              "isSigner": false,
+              "isWritable": true
+            },
+            {
+              "pubkey": "9zFiwnpYEYC9tNFq5rSn54tmWYDX6dRyys9YT9TYpws2",
+              "isSigner": false,
+              "isWritable": true
+            },
+            {
+              "pubkey": "B8MA5aWJ7xv3SQgmnLe5orh7zDt8ah6JybBsTPhkT1Ng",
+              "isSigner": false,
+              "isWritable": true
+            },
+            {
+              "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+              "isSigner": false,
+              "isWritable": false
+            }
+          ],
+          "programId": "TLPv2tuSVvn3fSk8RgW3yPddkp5oFivzZV3rA9hQxtX",
+          "data": [
+            110,
+            72,
+            179,
+            47,
+            131,
+            109,
+            115,
+            103,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            16,
+            39,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "signers": [
+        alice_pubkey.to_string()
+      ]
+    })
+    .to_string()
+}

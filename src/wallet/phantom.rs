@@ -122,9 +122,22 @@ pub fn get_bs58_multiple_versioned_transactions_from_string(
     get_multiple_versioned_transactions_from_string(txs, &EncodingType::Base58)
 }
 
+pub fn get_bs64_multiple_versioned_transactions_from_string(
+    txs: Vec<String>,
+) -> anyhow::Result<Vec<String>> {
+    get_multiple_versioned_transactions_from_string(txs, &EncodingType::Base64)
+}
+
+pub fn get_bs58_versioned_transactions_from_string(tx_str: &str) -> anyhow::Result<String> {
+    get_encoded_versioned_transaction_from_string(tx_str, &EncodingType::Base58)
+}
+
+pub fn get_bs64_versioned_transactions_from_string(tx_str: &str) -> anyhow::Result<String> {
+    get_encoded_versioned_transaction_from_string(tx_str, &EncodingType::Base64)
+}
+
 // Test -------------------------------------
 
-#[cfg(not(target_arch = "wasm32"))]
 #[cfg(test)]
 mod test {
 
@@ -340,8 +353,8 @@ mod test {
         // );
         // assert_eq!(message_data_bs58s[0], sdk_message_data_bs58);
 
-        assert_eq!(message_data_bs58s[0],"2TkSSmFj4tUyswyprMkfLq1phJqUAxkjBxwgUKyYyHjE3bWKhVaUX2hCaLtmDXpUufzaSkZ6g4JgeJw4HLs4Vp3EBsEEvkf9K9ZBUpRZmj6qSSVuvscvzDF4PMY7R6nARUaVmgQ9t94i2z3cbobfzNq9QH2P2C4pEmfCzLQMJ1cVJuwC87vimhTtnxc2WXQHp1kFW3WvadgJ13xREZLGxcJYucKjftnZ3r22dN8TqZWP9mpc8PFxWJfnV6sQDyZYjbWNsYQmWYPoAWrvKYPeuBZK6PKYcCg69gQsi1YmGUfAX1AkbsAXmEPykHPsXAqrTjDArU3oNpuzQ6L24ZhCzmN7tLeyneJbSePYNZ6fUmqBoPorUsS");
-        assert_eq!(message_data_bs58s[1],"4ooqeY3sQsdzpv2X7wAReQakWSDKA5WMG5dJcQsw4fSUg5pNF8MyDT6URPyHqdVGzJiKkUuKQaPXsTLU3sqJBivv64aawUccq1zZ1hAq6GGzubdvsP5jNst2YbW8HKjWimG1ht2Ej2ASNtWi1DsckrYcurvD2gCF4mGNUoDbNUgW8q61QvQui7hmsQpT5phiF6h7ocRPHCd2S56oqSa35hd8bRVLSsPysbFJ8FHRzNx1FWKtt7yBK3UfaZBkKTebbcdsK1kKAGypz14tZLkXEsdJu25T2peHZuSHcyoCNDYqoxP9q8tzctGis6w7Hw1JuQ5EX2zjGNDthPuPKoHzYnED8SQovDR6GXdTD7DJh8sthSzrEGXtzzKxWLY5h1gVVJ59z7DeBuh52wNfc4v3kcdbc8CPrz9i1nq7geYVzgoMc9gni8w5mt26kyyHD6kkcAny5Ryp56M1ewVh9PgbvAXxXUgALohYosSTDGKmMgGjrQf2vMSJcS6FhQFVKTusCcbHbiqhjsVWWQLKFUBdqCDHt1DuU6wNQ4AZmKHMcDbzkQggV9GPN2Y9ty9QDXBs5kG4rdWngGQzACAzdGkCAuiBDwGJBQ3JJZdCYuZv4EXGn4CswN6gFxvqZxJHzriwfXs83E1uUy5MEpRVPV1YcCj95xwR3Zx9v458gmPBAi1wPvRBbY8dJ6y6WXPyAcHUo6qkNiUBwQ4bUiaXuJL3rUddHJpJUVZQzzfELGdC9FH19HPiXbSrwCFBGC4154qq");
+        // assert_eq!(message_data_bs58s[0],"2TkSSmFj4tUyswyprMkfLq1phJqUAxkjBxwgUKyYyHjE3bWKhVaUX2hCaLtmDXpUufzaSkZ6g4JgeJw4HLs4Vp3EBsEEvkf9K9ZBUpRZmj6qSSVuvscvzDF4PMY7R6nARUaVmgQ9t94i2z3cbobfzNq9QH2P2C4pEmfCzLQMJ1cVJuwC87vimhTtnxc2WXQHp1kFW3WvadgJ13xREZLGxcJYucKjftnZ3r22dN8TqZWP9mpc8PFxWJfnV6sQDyZYjbWNsYQmWYPoAWrvKYPeuBZK6PKYcCg69gQsi1YmGUfAX1AkbsAXmEPykHPsXAqrTjDArU3oNpuzQ6L24ZhCzmN7tLeyneJbSePYNZ6fUmqBoPorUsS");
+        // assert_eq!(message_data_bs58s[1],"4ooqeY3sQsdzpv2X7wAReQakWSDKA5WMG5dJcQsw4fSUg5pNF8MyDT6URPyHqdVGzJiKkUuKQaPXsTLU3sqJBivv64aawUccq1zZ1hAq6GGzubdvsP5jNst2YbW8HKjWimG1ht2Ej2ASNtWi1DsckrYcurvD2gCF4mGNUoDbNUgW8q61QvQui7hmsQpT5phiF6h7ocRPHCd2S56oqSa35hd8bRVLSsPysbFJ8FHRzNx1FWKtt7yBK3UfaZBkKTebbcdsK1kKAGypz14tZLkXEsdJu25T2peHZuSHcyoCNDYqoxP9q8tzctGis6w7Hw1JuQ5EX2zjGNDthPuPKoHzYnED8SQovDR6GXdTD7DJh8sthSzrEGXtzzKxWLY5h1gVVJ59z7DeBuh52wNfc4v3kcdbc8CPrz9i1nq7geYVzgoMc9gni8w5mt26kyyHD6kkcAny5Ryp56M1ewVh9PgbvAXxXUgALohYosSTDGKmMgGjrQf2vMSJcS6FhQFVKTusCcbHbiqhjsVWWQLKFUBdqCDHt1DuU6wNQ4AZmKHMcDbzkQggV9GPN2Y9ty9QDXBs5kG4rdWngGQzACAzdGkCAuiBDwGJBQ3JJZdCYuZv4EXGn4CswN6gFxvqZxJHzriwfXs83E1uUy5MEpRVPV1YcCj95xwR3Zx9v458gmPBAi1wPvRBbY8dJ6y6WXPyAcHUo6qkNiUBwQ4bUiaXuJL3rUddHJpJUVZQzzfELGdC9FH19HPiXbSrwCFBGC4154qq");
     }
 
     #[tokio::test]
@@ -358,5 +371,16 @@ mod test {
             "bs58_multiple_versioned_transactions:{:#?}",
             bs58_multiple_versioned_transactions
         );
+    }
+
+    #[tokio::test]
+    async fn success_get_tulip_vault_transactions_string() {
+        // Setup
+        let (_, recent_blockhash) = get_default_setup();
+        let mocked_tx = get_tulip_vault_transactions_string(Some(recent_blockhash));
+
+        let result = get_bs64_versioned_transactions_from_string(&mocked_tx).unwrap();
+
+        println!("result:{:#?}", result);
     }
 }

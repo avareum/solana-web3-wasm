@@ -2,7 +2,8 @@ use std::collections::HashMap;
 
 use crate::core::hash::{hash_deserialize, hash_serialize};
 use crate::core::pubkey::{
-    multiple_pubkey_deserialize, multiple_pubkey_serialize, pubkey_deserialize, pubkey_serialize,
+    multiple_pubkey_deserialize, multiple_pubkey_serialize, option_pubkey_deserialize,
+    option_pubkey_serialize, pubkey_deserialize, pubkey_serialize,
 };
 
 use serde::{Deserialize, Serialize};
@@ -40,10 +41,10 @@ pub struct TransactionValue {
     )]
     pub recent_blockhash: Hash,
     #[serde(
-        serialize_with = "pubkey_serialize",
-        deserialize_with = "pubkey_deserialize"
+        serialize_with = "option_pubkey_serialize",
+        deserialize_with = "option_pubkey_deserialize"
     )]
-    pub fee_payer: Pubkey,
+    pub fee_payer: Option<Pubkey>,
     pub nonce_info: Option<()>,
     pub instructions: Vec<InstructionValue>,
     #[serde(
@@ -127,7 +128,7 @@ impl TryFrom<TransactionValue> for Transaction {
             .map(Instruction::try_from)
             .collect::<Result<Vec<_>, _>>()?;
 
-        let mut tx = Transaction::new_with_payer(&instructions, Some(&value.fee_payer));
+        let mut tx = Transaction::new_with_payer(&instructions, value.fee_payer.as_ref());
         tx.message.recent_blockhash = value.recent_blockhash;
 
         let signatures = match value.signatures {
