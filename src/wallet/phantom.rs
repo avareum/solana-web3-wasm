@@ -108,26 +108,6 @@ pub fn get_multiple_versioned_transactions_from_string(
     Ok(result)
 }
 
-pub fn get_bs58_multiple_versioned_transactions_from_string(
-    txs: &[String],
-) -> anyhow::Result<Vec<String>> {
-    get_multiple_versioned_transactions_from_string(txs, &EncodingType::Base58)
-}
-
-pub fn get_bs64_multiple_versioned_transactions_from_string(
-    txs: &[String],
-) -> anyhow::Result<Vec<String>> {
-    get_multiple_versioned_transactions_from_string(txs, &EncodingType::Base64)
-}
-
-pub fn get_bs58_versioned_transactions_from_string(tx_str: &str) -> anyhow::Result<String> {
-    get_encoded_versioned_transaction_from_string(tx_str, &EncodingType::Base58)
-}
-
-pub fn get_bs64_versioned_transactions_from_string(tx_str: &str) -> anyhow::Result<String> {
-    get_encoded_versioned_transaction_from_string(tx_str, &EncodingType::Base64)
-}
-
 // Test -------------------------------------
 
 #[cfg(test)]
@@ -383,12 +363,14 @@ mod test {
         ];
 
         let bs58_multiple_versioned_transactions =
-            get_bs58_multiple_versioned_transactions_from_string(&mocked_txs_v0).unwrap();
+            get_multiple_versioned_transactions_from_string(&mocked_txs_v0, &EncodingType::Base58)
+                .unwrap();
 
         println!("bs58_multiple_versioned_transactions:{bs58_multiple_versioned_transactions:#?}");
 
         let bs64_multiple_versioned_transactions =
-            get_bs64_multiple_versioned_transactions_from_string(&mocked_txs_v0).unwrap();
+            get_multiple_versioned_transactions_from_string(&mocked_txs_v0, &EncodingType::Base64)
+                .unwrap();
 
         println!("bs64_multiple_versioned_transactions:{bs64_multiple_versioned_transactions:#?}");
     }
@@ -399,7 +381,8 @@ mod test {
         let (_, recent_blockhash) = get_default_setup();
         let mocked_tx = get_tulip_vault_transactions_string(Some(recent_blockhash));
 
-        let result = get_bs64_versioned_transactions_from_string(&mocked_tx).unwrap();
+        let result =
+            get_encoded_versioned_transaction_from_string(&mocked_tx, &EncodingType::Base64);
 
         println!("result:{result:#?}");
     }
