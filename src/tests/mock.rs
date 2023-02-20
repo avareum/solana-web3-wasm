@@ -47,7 +47,7 @@ pub fn get_transfer_transaction_string(maybe_recent_blockhash: Option<Hash>) -> 
 
     json!({
       "recentBlockhash": recent_blockhash.to_string(),
-      "feePayer": alice_pubkey.to_string(),
+      "feePayer": null,
       "nonceInfo": null,
       "instructions": [
         {
@@ -212,7 +212,7 @@ pub fn get_swap_transactions_v0_with_address_table_lookups_string(
     vec![
         json!({
           "recentBlockhash": recent_blockhash.to_string(),
-          "feePayer": alice_pubkey.to_string(),
+          "feePayer": null,
           "nonceInfo": null,
           "instructions": [
             {

@@ -1,6 +1,7 @@
 use anyhow::bail;
 use solana_sdk::transaction::{Transaction, VersionedTransaction};
 
+use strum_macros::EnumString;
 #[cfg(feature = "wasm_bindgen")]
 use wasm_bindgen::prelude::*;
 
@@ -11,6 +12,7 @@ use super::transaction::TransactionValue;
 // Type -------------------------------------
 
 #[wasm_bindgen]
+#[derive(Debug, PartialEq, EnumString)]
 pub enum EncodingType {
     Base58,
     Base64,
@@ -22,10 +24,20 @@ pub fn get_message_data_bs58_from_string(tx_str: &str) -> anyhow::Result<String>
     get_encoded_message_data_from_string(tx_str, &EncodingType::Base58)
 }
 
+pub fn get_message_data_bs64_from_string(tx_str: &str) -> anyhow::Result<String> {
+    get_encoded_message_data_from_string(tx_str, &EncodingType::Base64)
+}
+
 pub fn get_multiple_message_data_bs58_from_string(
-    tx_strs: Vec<String>,
+    tx_strs: &[String],
 ) -> anyhow::Result<Vec<String>> {
     get_multiple_message_data_from_string(tx_strs, &EncodingType::Base58)
+}
+
+pub fn get_multiple_message_data_bs64_from_string(
+    tx_strs: &[String],
+) -> anyhow::Result<Vec<String>> {
+    get_multiple_message_data_from_string(tx_strs, &EncodingType::Base64)
 }
 
 pub fn get_versioned_transaction_from_string(tx_str: &str) -> anyhow::Result<VersionedTransaction> {
@@ -64,13 +76,13 @@ pub fn get_encoded_message_data_from_string(
 }
 
 pub fn get_multiple_message_data_from_string(
-    txs: Vec<String>,
+    txs: &[String],
     encoding_type: &EncodingType,
 ) -> anyhow::Result<Vec<String>> {
     let mut errors = vec![];
     let result = txs
-        .into_iter()
-        .map(|e| get_encoded_message_data_from_string(&e, encoding_type))
+        .iter()
+        .map(|e| get_encoded_message_data_from_string(e, encoding_type))
         .filter_map(|r| r.map_err(|e| errors.push(e)).ok())
         .collect::<Vec<_>>();
 
@@ -99,13 +111,13 @@ pub fn get_encoded_versioned_transaction_from_string(
 }
 
 pub fn get_multiple_versioned_transactions_from_string(
-    txs: Vec<String>,
+    txs: &[String],
     encoding_type: &EncodingType,
 ) -> anyhow::Result<Vec<String>> {
     let mut errors = vec![];
     let result = txs
-        .into_iter()
-        .map(|e| get_encoded_versioned_transaction_from_string(&e, encoding_type))
+        .iter()
+        .map(|e| get_encoded_versioned_transaction_from_string(e, encoding_type))
         .filter_map(|r| r.map_err(|e| errors.push(e)).ok())
         .collect::<Vec<_>>();
 
@@ -117,13 +129,13 @@ pub fn get_multiple_versioned_transactions_from_string(
 }
 
 pub fn get_bs58_multiple_versioned_transactions_from_string(
-    txs: Vec<String>,
+    txs: &[String],
 ) -> anyhow::Result<Vec<String>> {
     get_multiple_versioned_transactions_from_string(txs, &EncodingType::Base58)
 }
 
 pub fn get_bs64_multiple_versioned_transactions_from_string(
-    txs: Vec<String>,
+    txs: &[String],
 ) -> anyhow::Result<Vec<String>> {
     get_multiple_versioned_transactions_from_string(txs, &EncodingType::Base64)
 }
@@ -177,7 +189,8 @@ mod test {
         let tx2_string = get_transfer_transaction_string(Some(recent_blockhash));
         let txs = vec![tx1_string, tx2_string];
 
-        let message_data_bs58s = get_multiple_message_data_bs58_from_string(txs).unwrap();
+        let message_data_bs58s = get_multiple_message_data_bs58_from_string(&txs).unwrap();
+        let message_data_bs64s = get_multiple_message_data_bs64_from_string(&txs).unwrap();
 
         // Prove
         let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
@@ -190,7 +203,13 @@ mod test {
             .map(|e| bs58::encode(e).into_string())
             .collect::<Vec<_>>();
 
+        println!("sdk_message_data_bs58s:{sdk_message_data_bs58s:?}");
         assert_eq!(message_data_bs58s, sdk_message_data_bs58s);
+
+        let sdk_message_data_bs64s = message_datas.iter().map(base64::encode).collect::<Vec<_>>();
+
+        println!("sdk_message_data_bs64s:{sdk_message_data_bs64s:?}");
+        assert_eq!(message_data_bs64s, sdk_message_data_bs64s);
     }
 
     #[tokio::test]
@@ -199,6 +218,7 @@ mod test {
         let (alice_pubkey, recent_blockhash) = get_default_setup();
         let mocked_tx_v0 = get_transfer_transaction_v0_string(Some(recent_blockhash));
         let message_data_bs58 = get_message_data_bs58_from_string(mocked_tx_v0.as_str()).unwrap();
+        let message_data_bs64 = get_message_data_bs64_from_string(mocked_tx_v0.as_str()).unwrap();
 
         // Prove
         let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
@@ -239,8 +259,12 @@ mod test {
         });
 
         let sdk_message_data_bs58 = bs58::encode(version_0_message.serialize()).into_string();
-
+        println!("sdk_message_data_bs58:{sdk_message_data_bs58:?}");
         assert_eq!(message_data_bs58, sdk_message_data_bs58);
+
+        let sdk_message_data_bs64 = base64::encode(version_0_message.serialize());
+        println!("sdk_message_data_bs64:{sdk_message_data_bs64:?}");
+        assert_eq!(message_data_bs64, sdk_message_data_bs64);
     }
 
     #[tokio::test]
@@ -262,8 +286,13 @@ mod test {
         );
         println!("{message_data_bs58:?}");
 
-        let message_data_bs58s = get_multiple_message_data_bs58_from_string(mocked_txs_v0).unwrap();
+        let message_data_bs58s =
+            get_multiple_message_data_bs58_from_string(&mocked_txs_v0).unwrap();
         println!("{message_data_bs58s:#?}");
+
+        let message_data_bs64s =
+            get_multiple_message_data_bs64_from_string(&mocked_txs_v0).unwrap();
+        println!("{message_data_bs64s:#?}");
 
         // Prove tx0
         let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
@@ -285,7 +314,7 @@ mod test {
                 panic!("error");
             }
         };
-        println!("versioned_transaction0:{:#?}", versioned_transaction0);
+        println!("versioned_transaction0:{versioned_transaction0:#?}");
         assert!(!versioned_transaction0.message.serialize().is_empty());
 
         // TODO: mock to matched tx1
@@ -361,16 +390,20 @@ mod test {
     async fn success_v0_get_bs58_multiple_versioned_transactions_from_string() {
         // Setup
         let (_, recent_blockhash) = get_default_setup();
-        let mocked_txs_v0 =
-            get_swap_transactions_v0_with_address_table_lookups_string(Some(recent_blockhash));
+        let mocked_txs_v0 = [
+            get_transfer_transaction_v0_string(Some(recent_blockhash)),
+            get_transfer_transaction_v0_string(Some(recent_blockhash)),
+        ];
 
         let bs58_multiple_versioned_transactions =
-            get_bs58_multiple_versioned_transactions_from_string(mocked_txs_v0).unwrap();
+            get_bs58_multiple_versioned_transactions_from_string(&mocked_txs_v0).unwrap();
 
-        println!(
-            "bs58_multiple_versioned_transactions:{:#?}",
-            bs58_multiple_versioned_transactions
-        );
+        println!("bs58_multiple_versioned_transactions:{bs58_multiple_versioned_transactions:#?}");
+
+        let bs64_multiple_versioned_transactions =
+            get_bs64_multiple_versioned_transactions_from_string(&mocked_txs_v0).unwrap();
+
+        println!("bs64_multiple_versioned_transactions:{bs64_multiple_versioned_transactions:#?}");
     }
 
     #[tokio::test]
@@ -381,6 +414,6 @@ mod test {
 
         let result = get_bs64_versioned_transactions_from_string(&mocked_tx).unwrap();
 
-        println!("result:{:#?}", result);
+        println!("result:{result:#?}");
     }
 }
