@@ -20,26 +20,6 @@ pub enum EncodingType {
 
 // Fun -------------------------------------
 
-pub fn get_message_data_bs58_from_string(tx_str: &str) -> anyhow::Result<String> {
-    get_encoded_message_data_from_string(tx_str, &EncodingType::Base58)
-}
-
-pub fn get_message_data_bs64_from_string(tx_str: &str) -> anyhow::Result<String> {
-    get_encoded_message_data_from_string(tx_str, &EncodingType::Base64)
-}
-
-pub fn get_multiple_message_data_bs58_from_string(
-    tx_strs: &[String],
-) -> anyhow::Result<Vec<String>> {
-    get_multiple_message_data_from_string(tx_strs, &EncodingType::Base58)
-}
-
-pub fn get_multiple_message_data_bs64_from_string(
-    tx_strs: &[String],
-) -> anyhow::Result<Vec<String>> {
-    get_multiple_message_data_from_string(tx_strs, &EncodingType::Base64)
-}
-
 pub fn get_versioned_transaction_from_string(tx_str: &str) -> anyhow::Result<VersionedTransaction> {
     let tx_json = serde_json::from_str(tx_str)?;
     let tx_value = serde_json::from_value::<TransactionValue>(tx_json);
@@ -164,11 +144,12 @@ mod test {
     };
 
     #[tokio::test]
-    async fn success_legacy_get_message_data_bs58_from_string() {
+    async fn success_legacy_get_encoded_message_data_from_string() {
         // Setup
         let (alice_pubkey, recent_blockhash) = get_default_setup();
         let tx = get_transfer_transaction_string(Some(recent_blockhash));
-        let message_data_bs58 = get_message_data_bs58_from_string(tx.as_str()).unwrap();
+        let message_data_bs58 =
+            get_encoded_message_data_from_string(tx.as_str(), &EncodingType::Base58).unwrap();
 
         // Prove
         let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
@@ -189,8 +170,10 @@ mod test {
         let tx2_string = get_transfer_transaction_string(Some(recent_blockhash));
         let txs = vec![tx1_string, tx2_string];
 
-        let message_data_bs58s = get_multiple_message_data_bs58_from_string(&txs).unwrap();
-        let message_data_bs64s = get_multiple_message_data_bs64_from_string(&txs).unwrap();
+        let message_data_bs58s =
+            get_multiple_message_data_from_string(&txs, &EncodingType::Base58).unwrap();
+        let message_data_bs64s =
+            get_multiple_message_data_from_string(&txs, &EncodingType::Base64).unwrap();
 
         // Prove
         let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
@@ -217,8 +200,12 @@ mod test {
         // Setup
         let (alice_pubkey, recent_blockhash) = get_default_setup();
         let mocked_tx_v0 = get_transfer_transaction_v0_string(Some(recent_blockhash));
-        let message_data_bs58 = get_message_data_bs58_from_string(mocked_tx_v0.as_str()).unwrap();
-        let message_data_bs64 = get_message_data_bs64_from_string(mocked_tx_v0.as_str()).unwrap();
+        let message_data_bs58 =
+            get_encoded_message_data_from_string(mocked_tx_v0.as_str(), &EncodingType::Base58)
+                .unwrap();
+        let message_data_bs64 =
+            get_encoded_message_data_from_string(mocked_tx_v0.as_str(), &EncodingType::Base64)
+                .unwrap();
 
         // Prove
         let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
@@ -287,11 +274,11 @@ mod test {
         println!("{message_data_bs58:?}");
 
         let message_data_bs58s =
-            get_multiple_message_data_bs58_from_string(&mocked_txs_v0).unwrap();
-        println!("{message_data_bs58s:#?}");
-
+            get_multiple_message_data_from_string(&mocked_txs_v0, &EncodingType::Base58).unwrap();
         let message_data_bs64s =
-            get_multiple_message_data_bs64_from_string(&mocked_txs_v0).unwrap();
+            get_multiple_message_data_from_string(&mocked_txs_v0, &EncodingType::Base64).unwrap();
+
+        println!("{message_data_bs58s:#?}");
         println!("{message_data_bs64s:#?}");
 
         // Prove tx0
