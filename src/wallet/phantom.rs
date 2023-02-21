@@ -143,7 +143,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn success_legacy_get_multiple_message_data_bs58_from_string() {
+    async fn success_legacy_get_multiple_message_data_from_string() {
         // Setup
         let (alice_pubkey, recent_blockhash) = get_default_setup();
         let tx1_string = get_transfer_transaction_string(Some(recent_blockhash));
@@ -176,7 +176,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn success_v0_get_message_data_bs58_from_string() {
+    async fn success_v0_get_encoded_message_data_from_string() {
         // Setup
         let (alice_pubkey, recent_blockhash) = get_default_setup();
         let mocked_tx_v0 = get_transfer_transaction_v0_string(Some(recent_blockhash));
@@ -354,7 +354,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn success_v0_get_bs58_multiple_versioned_transactions_from_string() {
+    async fn success_v0_get_transfer_transaction_v0_string() {
         // Setup
         let (_, recent_blockhash) = get_default_setup();
         let mocked_txs_v0 = [
