@@ -165,7 +165,7 @@ mod test {
             .await
             .unwrap();
 
-        println!("wallet_info: {:#?}", wallet_info);
+        println!("wallet_info: {wallet_info:#?}");
         assert!(wallet_info.lamports > 0);
     }
 
@@ -177,7 +177,7 @@ mod test {
             .await
             .unwrap();
 
-        println!("wallet_info: {:#?}", wallet_info);
+        println!("wallet_info: {wallet_info:#?}");
         assert!(wallet_info.lamports == 0);
     }
 
@@ -189,7 +189,7 @@ mod test {
             .await
             .unwrap();
 
-        println!("token_info: {:#?}", token_info);
+        println!("token_info: {token_info:#?}");
         assert!(!token_info.is_empty());
     }
 }
