@@ -75,7 +75,7 @@ pub fn get_multiple_message_data_from_string(
 
 // Versioned Transaction -------------------------------------
 
-pub fn get_encoded_versioned_transaction_from_string(
+pub fn get_encoded_serialized_versioned_transaction_from_string(
     tx_str: &str,
     encoding_type: &EncodingType,
 ) -> anyhow::Result<String> {
@@ -90,14 +90,14 @@ pub fn get_encoded_versioned_transaction_from_string(
     Ok(message_data_string)
 }
 
-pub fn get_multiple_versioned_transactions_from_string(
+pub fn get_multiple_encoded_serialized_versioned_transactions_from_string(
     txs: &[String],
     encoding_type: &EncodingType,
 ) -> anyhow::Result<Vec<String>> {
     let mut errors = vec![];
     let result = txs
         .iter()
-        .map(|e| get_encoded_versioned_transaction_from_string(e, encoding_type))
+        .map(|e| get_encoded_serialized_versioned_transaction_from_string(e, encoding_type))
         .filter_map(|r| r.map_err(|e| errors.push(e)).ok())
         .collect::<Vec<_>>();
 
@@ -127,9 +127,14 @@ mod test {
     async fn success_legacy_get_encoded_message_data_from_string() {
         // Setup
         let (alice_pubkey, recent_blockhash) = get_default_setup();
+        println!("alice_pubkey:{alice_pubkey:?}");
+
         let tx = get_transfer_transaction_string(Some(recent_blockhash));
         let message_data_bs58 =
             get_encoded_message_data_from_string(tx.as_str(), &EncodingType::Base58).unwrap();
+
+        let message_data_bs64 =
+            get_encoded_message_data_from_string(tx.as_str(), &EncodingType::Base64).unwrap();
 
         // Prove
         let ix = system_instruction::transfer(&alice_pubkey, &alice_pubkey, 100);
@@ -137,9 +142,14 @@ mod test {
         tx.message.recent_blockhash = recent_blockhash;
 
         let message_data = tx.message_data();
-        let sdk_message_data_bs58 = bs58::encode(message_data).into_string();
+        let sdk_message_data_bs58 = bs58::encode(&message_data).into_string();
+        let sdk_message_data_bs64 = base64::encode(message_data);
 
+        println!("sdk_message_data_bs58:{sdk_message_data_bs58:?}");
         assert_eq!(message_data_bs58, sdk_message_data_bs58);
+
+        println!("sdk_message_data_bs64:{sdk_message_data_bs64:?}");
+        assert_eq!(message_data_bs64, sdk_message_data_bs64);
     }
 
     #[tokio::test]
@@ -235,19 +245,19 @@ mod test {
     }
 
     #[tokio::test]
-    async fn success_v0_get_multiple_message_data_bs58_from_string_with_address_table_lookups() {
+    async fn success_v0_get_multiple_message_data_from_string_with_address_table_lookups() {
         // Setup
         let (alice_pubkey, recent_blockhash) = get_default_setup();
         let mocked_txs_v0 =
             get_swap_transactions_v0_with_address_table_lookups_string(Some(recent_blockhash));
 
-        let message_data_bs64 = get_encoded_versioned_transaction_from_string(
+        let message_data_bs64 = get_encoded_serialized_versioned_transaction_from_string(
             mocked_txs_v0[0].as_str(),
             &EncodingType::Base64,
         );
         println!("{message_data_bs64:?}");
 
-        let message_data_bs58 = get_encoded_versioned_transaction_from_string(
+        let message_data_bs58 = get_encoded_serialized_versioned_transaction_from_string(
             mocked_txs_v0[0].as_str(),
             &EncodingType::Base58,
         );
@@ -363,14 +373,20 @@ mod test {
         ];
 
         let bs58_multiple_versioned_transactions =
-            get_multiple_versioned_transactions_from_string(&mocked_txs_v0, &EncodingType::Base58)
-                .unwrap();
+            get_multiple_encoded_serialized_versioned_transactions_from_string(
+                &mocked_txs_v0,
+                &EncodingType::Base58,
+            )
+            .unwrap();
 
         println!("bs58_multiple_versioned_transactions:{bs58_multiple_versioned_transactions:#?}");
 
         let bs64_multiple_versioned_transactions =
-            get_multiple_versioned_transactions_from_string(&mocked_txs_v0, &EncodingType::Base64)
-                .unwrap();
+            get_multiple_encoded_serialized_versioned_transactions_from_string(
+                &mocked_txs_v0,
+                &EncodingType::Base64,
+            )
+            .unwrap();
 
         println!("bs64_multiple_versioned_transactions:{bs64_multiple_versioned_transactions:#?}");
     }
@@ -381,8 +397,10 @@ mod test {
         let (_, recent_blockhash) = get_default_setup();
         let mocked_tx = get_tulip_vault_transactions_string(Some(recent_blockhash));
 
-        let result =
-            get_encoded_versioned_transaction_from_string(&mocked_tx, &EncodingType::Base64);
+        let result = get_encoded_serialized_versioned_transaction_from_string(
+            &mocked_tx,
+            &EncodingType::Base64,
+        );
 
         println!("result:{result:#?}");
     }
