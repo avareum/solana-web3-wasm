@@ -9,8 +9,10 @@ pub use spl_token;
 
 pub mod core;
 pub mod info;
-pub mod tests;
 pub mod wasm;
+
+#[cfg(test)]
+pub mod tests;
 
 #[cfg(feature = "wallet_info")]
 pub mod wallet;
