@@ -53,13 +53,13 @@ pub fn get_u8s_from_map_json_stringify_uint8(uint8: Map<String, Value>) -> Vec<u
         .collect::<Vec<_>>()
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Eq, PartialEq)]
 pub struct Uint8Data {
     #[serde(deserialize_with = "deserialize_uint8")]
     pub data: Vec<u8>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Eq, PartialEq)]
 pub struct BufferData {
     #[serde(deserialize_with = "deserialize_buffer")]
     pub data: Vec<u8>,
@@ -119,11 +119,24 @@ mod test {
 
         let deserialized_data_0: Uint8Data = serde_json::from_str(test_data_0).unwrap();
         println!("{:#?}", deserialized_data_0);
+        assert_eq!(deserialized_data_0, Uint8Data { data: vec![] });
 
         let deserialized_data_1: Uint8Data = serde_json::from_str(test_data_1).unwrap();
         println!("{:#?}", deserialized_data_1);
+        assert_eq!(
+            deserialized_data_1,
+            Uint8Data {
+                data: vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,],
+            }
+        );
 
         let deserialized_data_2: BufferData = serde_json::from_str(test_data_2).unwrap();
         println!("{:#?}", deserialized_data_2);
+        assert_eq!(
+            deserialized_data_2,
+            BufferData {
+                data: vec![1, 2, 3,]
+            }
+        );
     }
 }
