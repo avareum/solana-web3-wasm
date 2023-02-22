@@ -11,7 +11,7 @@ pub mod core;
 pub mod info;
 pub mod wasm;
 
-#[cfg(test)]
+#[cfg(feature = "tests")]
 pub mod tests;
 
 #[cfg(feature = "wallet_info")]
