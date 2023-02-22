@@ -835,3 +835,259 @@ pub fn get_tulip_vault_transactions_string(maybe_recent_blockhash: Option<Hash>)
     })
     .to_string()
 }
+
+pub fn get_kyber_transaction_string(_maybe_recent_blockhash: Option<Hash>) -> String {
+    // let (alice_pubkey, new_recent_blockhash) = get_default_setup();
+    // let recent_blockhash = maybe_recent_blockhash.unwrap_or(new_recent_blockhash);
+
+    json!({
+      "signatures": [
+        {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "10": 0,
+          "11": 0,
+          "12": 0,
+          "13": 0,
+          "14": 0,
+          "15": 0,
+          "16": 0,
+          "17": 0,
+          "18": 0,
+          "19": 0,
+          "20": 0,
+          "21": 0,
+          "22": 0,
+          "23": 0,
+          "24": 0,
+          "25": 0,
+          "26": 0,
+          "27": 0,
+          "28": 0,
+          "29": 0,
+          "30": 0,
+          "31": 0,
+          "32": 0,
+          "33": 0,
+          "34": 0,
+          "35": 0,
+          "36": 0,
+          "37": 0,
+          "38": 0,
+          "39": 0,
+          "40": 0,
+          "41": 0,
+          "42": 0,
+          "43": 0,
+          "44": 0,
+          "45": 0,
+          "46": 0,
+          "47": 0,
+          "48": 0,
+          "49": 0,
+          "50": 0,
+          "51": 0,
+          "52": 0,
+          "53": 0,
+          "54": 0,
+          "55": 0,
+          "56": 0,
+          "57": 0,
+          "58": 0,
+          "59": 0,
+          "60": 0,
+          "61": 0,
+          "62": 0,
+          "63": 0
+        }
+      ],
+      "message": {
+        "header": {
+          "numRequiredSignatures": 1,
+          "numReadonlySignedAccounts": 0,
+          "numReadonlyUnsignedAccounts": 7
+        },
+        "staticAccountKeys": [
+          "DcJGXTE7L1XQtFSdvBv2NPkGCxQ1cziem1yXnqfy2rVy",
+          "Btq4pb11PfiWSc4bT7sjJXVFRTdZfTmimGQ7YY31S1AY",
+          "Eja56YAPbhWM8kKKexjbYy2CmEE2RARP7Nw13ANNUHvS",
+          "B8MA5aWJ7xv3SQgmnLe5orh7zDt8ah6JybBsTPhkT1Ng",
+          "ComputeBudget111111111111111111111111111111",
+          "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+          "FoRGERiW7odcCBGU1bztZi16osPBHjxharvDathL5eds",
+          "11111111111111111111111111111111",
+          "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "So11111111111111111111111111111111111111112",
+          "JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB"
+        ],
+        "recentBlockhash": "E6zXTdL7oodNQsSKJMhaoSG4m9MQ5fT2RL17SzymvPqW",
+        "compiledInstructions": [
+          {
+            "programIdIndex": 4,
+            "accountKeyIndexes": [],
+            "data": {
+              "0": 2,
+              "1": 192,
+              "2": 92,
+              "3": 21,
+              "4": 0
+            }
+          },
+          {
+            "programIdIndex": 5,
+            "accountKeyIndexes": [
+              0,
+              1,
+              0,
+              6,
+              7,
+              8
+            ],
+            "data": {}
+          },
+          {
+            "programIdIndex": 5,
+            "accountKeyIndexes": [
+              0,
+              2,
+              0,
+              9,
+              7,
+              8
+            ],
+            "data": {}
+          },
+          {
+            "programIdIndex": 10,
+            "accountKeyIndexes": [
+              8,
+              0,
+              2,
+              21,
+              8,
+              11,
+              22,
+              12,
+              13,
+              14,
+              23,
+              15,
+              11,
+              11,
+              11,
+              11,
+              11,
+              11,
+              3,
+              1,
+              0,
+              21,
+              8,
+              16,
+              22,
+              17,
+              18,
+              19,
+              23,
+              20,
+              16,
+              16,
+              16,
+              16,
+              16,
+              16,
+              1,
+              2,
+              0
+            ],
+            "data": {
+              "0": 229,
+              "1": 23,
+              "2": 203,
+              "3": 151,
+              "4": 122,
+              "5": 227,
+              "6": 173,
+              "7": 42,
+              "8": 0,
+              "9": 2,
+              "10": 0,
+              "11": 0,
+              "12": 0,
+              "13": 2,
+              "14": 7,
+              "15": 2,
+              "16": 7,
+              "17": 232,
+              "18": 3,
+              "19": 0,
+              "20": 0,
+              "21": 0,
+              "22": 0,
+              "23": 0,
+              "24": 0,
+              "25": 242,
+              "26": 149,
+              "27": 0,
+              "28": 0,
+              "29": 0,
+              "30": 0,
+              "31": 0,
+              "32": 0,
+              "33": 50,
+              "34": 0,
+              "35": 0
+            }
+          },
+          {
+            "programIdIndex": 8,
+            "accountKeyIndexes": [
+              2,
+              0,
+              0
+            ],
+            "data": {
+              "0": 9
+            }
+          }
+        ],
+        "addressTableLookups": [
+          {
+            "accountKey": "FgBUhuGZb1GvgECmRXTUknzfEz4ra7qgCFiRmzKugj7i",
+            "writableIndexes": [
+              152,
+              154,
+              155,
+              156,
+              158
+            ],
+            "readonlyIndexes": [
+              0,
+              3,
+              22
+            ]
+          },
+          {
+            "accountKey": "7YjEM3LE7WRHmCaDBWJd7enAbTbXEdD92AiB6Rj4nbeV",
+            "writableIndexes": [
+              92,
+              94,
+              95,
+              96,
+              98
+            ],
+            "readonlyIndexes": []
+          }
+        ]
+      }
+    })
+    .to_string()
+}

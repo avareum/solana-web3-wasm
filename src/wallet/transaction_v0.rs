@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::core::buffer::{get_u8s_from_json_stringify_uint8, hashmap_or_buffer_deserialize};
 use crate::core::hash::{hash_deserialize, hash_serialize};
 use crate::core::pubkey::{
     multiple_pubkey_deserialize, multiple_pubkey_serialize, pubkey_deserialize, pubkey_serialize,
@@ -89,32 +90,23 @@ impl TryFrom<MessageAddressTableLookupValue> for v0::MessageAddressTableLookup {
 pub struct CompiledInstructionValue {
     program_id_index: u8,
     account_key_indexes: Vec<u8>,
-    data: CompiledInstructionDataValue,
+    #[serde(deserialize_with = "hashmap_or_buffer_deserialize")]
+    data: Vec<u8>,
 }
 
 impl TryFrom<CompiledInstructionValue> for CompiledInstruction {
     type Error = TransactionV0ValueError;
 
     fn try_from(value: CompiledInstructionValue) -> Result<Self, Self::Error> {
-        if value.data.data.is_empty() {
-            return Err(TransactionV0ValueError::InvalidCompiledInstructionData);
-        }
-
+        println!("🦀{:?}", value.data);
         let compiled_tx = CompiledInstruction::new_from_raw_parts(
             value.program_id_index,
-            value.data.data,
+            value.data,
             value.account_key_indexes,
         );
 
         Ok(compiled_tx)
     }
-}
-
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct CompiledInstructionDataValue {
-    r#type: String,
-    data: Vec<u8>,
 }
 
 impl TryFrom<TransactionV0MessageValue> for VersionedMessage {
@@ -158,22 +150,11 @@ impl TryFrom<TransactionV0Value> for VersionedTransaction {
     type Error = TransactionV0ValueError;
 
     fn try_from(value: TransactionV0Value) -> Result<Self, Self::Error> {
-        let signatures = match value.signatures {
-            Some(signatures) => signatures
-                .into_iter()
-                .map(|s| {
-                    let u8s = s
-                        .into_values()
-                        .map(|e| match e.as_u64() {
-                            Some(num) => Ok(num as u8),
-                            None => Err(TransactionV0ValueError::ExpectedU64),
-                        })
-                        .collect::<Result<Vec<u8>, TransactionV0ValueError>>()?;
-                    Ok(Signature::new(&u8s))
-                })
-                .collect::<Result<Vec<Signature>, TransactionV0ValueError>>()?,
-            None => vec![],
-        };
+        let signatures = get_u8s_from_json_stringify_uint8(value.signatures)
+            .into_iter()
+            .map(|e| Signature::new(&e))
+            .collect::<Vec<_>>();
+
         let message = VersionedMessage::try_from(value.message)?;
 
         Ok(VersionedTransaction {

@@ -402,6 +402,20 @@ mod test {
             &EncodingType::Base64,
         );
 
+        // TODO:Prove
         println!("result:{result:#?}");
+    }
+
+    #[tokio::test]
+    async fn success_kyber_swap() {
+        // Setup
+        let (_, recent_blockhash) = get_default_setup();
+        let mocked_tx_v0 = get_kyber_transaction_string(Some(recent_blockhash));
+        let message_data_bs64 =
+            get_encoded_message_data_from_string(mocked_tx_v0.as_str(), &EncodingType::Base64)
+                .unwrap();
+
+        // TODO:Prove
+        println!("sdk_message_data_bs64:{message_data_bs64:?}");
     }
 }
