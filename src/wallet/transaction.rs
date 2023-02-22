@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::core::buffer::get_u8s_from_json_stringify_uint8;
+use crate::core::buffer::get_u8s_from_option_json_stringify_uint8;
 use crate::core::hash::{hash_deserialize, hash_serialize};
 use crate::core::pubkey::{
     multiple_pubkey_deserialize, multiple_pubkey_serialize, option_pubkey_deserialize,
@@ -132,7 +132,7 @@ impl TryFrom<TransactionValue> for Transaction {
         let mut tx = Transaction::new_with_payer(&instructions, value.fee_payer.as_ref());
         tx.message.recent_blockhash = value.recent_blockhash;
 
-        tx.signatures = get_u8s_from_json_stringify_uint8(value.signatures)
+        tx.signatures = get_u8s_from_option_json_stringify_uint8(value.signatures)
             .into_iter()
             .map(|e| Signature::new(&e))
             .collect::<Vec<_>>();
