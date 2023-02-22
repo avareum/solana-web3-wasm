@@ -8,7 +8,6 @@ where
     D: Deserializer<'de>,
 {
     let value: Value = Deserialize::deserialize(deserializer)?;
-    println!("{value:?}");
     match serde_json::from_value::<BufferData>(json!({ "data": value })) {
         Ok(data) => Ok(data.data),
         Err(_) => match serde_json::from_value::<Uint8Data>(json!({ "data": value })) {
