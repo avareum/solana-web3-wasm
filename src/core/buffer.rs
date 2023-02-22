@@ -1,74 +1,28 @@
-use serde::de::{self, MapAccess, Visitor};
 use serde::{Deserialize, Deserializer};
-use serde_json::{Map, Value};
+use serde_json::{json, Map, Value};
 
 use std::collections::HashMap;
-use std::fmt;
 
-/*
-TODO: test
-test_data_0 = { "data": {} }
-test_data_1 = { "data": { "0": 229, "1": 23, "2": 203 } }
-test_data_2 = { "data": { "type": "Buffer", "data": [124, 51, 114] } }
-*/
-
-#[derive(Debug, Default, Clone, Deserialize)]
-struct CompiledInstructionDataValue {
-    #[serde(deserialize_with = "hashmap_or_buffer_deserialize")]
-    data: Vec<u8>,
-}
-pub fn hashmap_or_buffer_deserialize<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
+pub fn buffer_or_uint8array_deserialize<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    struct DataVisitor;
-
-    impl<'de> Visitor<'de> for DataVisitor {
-        type Value = Vec<u8>;
-
-        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            formatter.write_str("a hashmap or buffer")
-        }
-
-        fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
-        where
-            A: MapAccess<'de>,
-        {
-            let mut data = Vec::new();
-            while let Some((key, value)) = map.next_entry::<String, serde_json::Value>()? {
-                let index = key.parse::<u8>().expect("expected u8");
-                println!("{index:?}");
-                match &value {
-                    Value::Number(num) => data.push(num.as_u64().ok_or(0u64).unwrap() as u8),
-                    Value::Array(arr) => arr
-                        .iter()
-                        .for_each(|e| data.push(e.as_u64().ok_or(0u64).unwrap() as u8)),
-                    _ => println!("ignore"),
-                }
-            }
-            Ok(data)
-        }
-
-        fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
-        where
-            A: de::SeqAccess<'de>,
-        {
-            let mut data = Vec::new();
-            while let Some(value) = seq.next_element()? {
-                data.push(value);
-            }
-            Ok(data)
-        }
+    let value: Value = Deserialize::deserialize(deserializer)?;
+    println!("{value:?}");
+    match serde_json::from_value::<BufferData>(json!({ "data": value })) {
+        Ok(data) => Ok(data.data),
+        Err(_) => match serde_json::from_value::<Uint8Data>(json!({ "data": value })) {
+            Ok(data) => Ok(data.data),
+            Err(_) => Ok(vec![]),
+        },
     }
-
-    deserializer.deserialize_any(DataVisitor)
 }
 
-pub fn get_u8s_from_option_json_stringify_uint8(
-    signatures: Option<Vec<HashMap<String, Value>>>,
+pub fn get_u8s_from_option_hashmap_json_stringify_uint8(
+    maybe_uint8: Option<Vec<HashMap<String, Value>>>,
 ) -> Vec<Vec<u8>> {
-    let signatures = match signatures {
-        Some(signatures) => signatures,
+    let signatures = match maybe_uint8 {
+        Some(uint8s) => uint8s,
         None => return vec![],
     };
 
@@ -88,7 +42,7 @@ pub fn get_u8s_from_option_json_stringify_uint8(
         .collect::<Vec<_>>()
 }
 
-pub fn get_u8s_from_json_stringify_uint8(uint8: Map<String, Value>) -> Vec<u8> {
+pub fn get_u8s_from_map_json_stringify_uint8(uint8: Map<String, Value>) -> Vec<u8> {
     let mut keys = uint8
         .keys()
         .flat_map(|e| e.parse::<usize>())
@@ -114,6 +68,7 @@ pub struct BufferData {
 
 #[derive(Debug, Clone, Deserialize)]
 struct Buffer {
+    #[allow(dead_code)]
     r#type: String,
     data: Vec<u8>,
 }
@@ -125,7 +80,11 @@ where
     let result = Buffer::deserialize(deserializer);
     let result = match result {
         Ok(u8s) => u8s.data,
-        Err(_) => vec![],
+        Err(_) => {
+            return Err(serde::de::Error::custom(
+                "Failed to deserialize at deserialize_buffer",
+            ))
+        }
     };
 
     Ok(result)
@@ -135,8 +94,16 @@ fn deserialize_uint8<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    let result: Map<_, _> = Deserialize::deserialize(deserializer).unwrap();
-    let result = get_u8s_from_json_stringify_uint8(result);
+    let result = Deserialize::deserialize(deserializer);
+    let result = match result {
+        Ok(map) => get_u8s_from_map_json_stringify_uint8(map),
+        Err(_) => {
+            return Err(serde::de::Error::custom(
+                "Failed to deserialize at deserialize_uint8",
+            ))
+        }
+    };
+
     Ok(result)
 }
 

@@ -1,14 +1,14 @@
 use std::collections::HashMap;
 
 use crate::core::buffer::{
-    get_u8s_from_option_json_stringify_uint8, hashmap_or_buffer_deserialize, BufferData, Uint8Data,
+    buffer_or_uint8array_deserialize, get_u8s_from_option_hashmap_json_stringify_uint8,
 };
 use crate::core::hash::{hash_deserialize, hash_serialize};
 use crate::core::pubkey::{
     multiple_pubkey_deserialize, multiple_pubkey_serialize, pubkey_deserialize, pubkey_serialize,
 };
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::Value;
 
 use solana_sdk::{
     hash::Hash,
@@ -92,28 +92,19 @@ impl TryFrom<MessageAddressTableLookupValue> for v0::MessageAddressTableLookup {
 pub struct CompiledInstructionValue {
     program_id_index: u8,
     account_key_indexes: Vec<u8>,
-    // #[serde(deserialize_with = "hashmap_or_buffer_deserialize")]
-    data: Value,
+
+    #[serde(deserialize_with = "buffer_or_uint8array_deserialize")]
+    data: Vec<u8>,
 }
 
 impl TryFrom<CompiledInstructionValue> for CompiledInstruction {
     type Error = TransactionV0ValueError;
 
     fn try_from(value: CompiledInstructionValue) -> Result<Self, Self::Error> {
-        let value_data = json! ({ "data": value.data });
-        let data = serde_json::from_value::<Uint8Data>(value_data.clone());
-        let data = match data {
-            Ok(data) => data.data,
-            Err(_) => {
-                serde_json::from_value::<BufferData>(value_data)
-                    .unwrap()
-                    .data
-            }
-        };
-
+        println!("{:?}", value.data);
         let compiled_tx = CompiledInstruction::new_from_raw_parts(
             value.program_id_index,
-            data,
+            value.data,
             value.account_key_indexes,
         );
 
@@ -162,7 +153,7 @@ impl TryFrom<TransactionV0Value> for VersionedTransaction {
     type Error = TransactionV0ValueError;
 
     fn try_from(value: TransactionV0Value) -> Result<Self, Self::Error> {
-        let signatures = get_u8s_from_option_json_stringify_uint8(value.signatures)
+        let signatures = get_u8s_from_option_hashmap_json_stringify_uint8(value.signatures)
             .into_iter()
             .map(|e| Signature::new(&e))
             .collect::<Vec<_>>();
