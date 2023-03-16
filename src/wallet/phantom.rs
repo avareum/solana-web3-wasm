@@ -418,4 +418,30 @@ mod test {
         // TODO:Prove
         println!("sdk_message_data_bs64:{message_data_bs64:?}");
     }
+
+    #[tokio::test]
+    async fn success_ribbon() {
+        // Setup
+        let (_, recent_blockhash) = get_default_setup();
+        let mocked_tx_v0 = get_ribbon_transaction_string(Some(recent_blockhash));
+        let message_data_bs64 =
+            get_encoded_message_data_from_string(mocked_tx_v0.as_str(), &EncodingType::Base64)
+                .unwrap();
+
+        // TODO:Prove
+        println!("sdk_message_data_bs64:{message_data_bs64:?}");
+    }
+
+    #[tokio::test]
+    async fn success_solend() {
+        // Setup
+        let (_, recent_blockhash) = get_default_setup();
+        let mocked_tx_v0 = get_solend_transaction_string(Some(recent_blockhash));
+        let message_data_bs64 =
+            get_encoded_message_data_from_string(mocked_tx_v0.as_str(), &EncodingType::Base64)
+                .unwrap();
+
+        // TODO:Prove
+        println!("sdk_message_data_bs64:{message_data_bs64:?}");
+    }
 }

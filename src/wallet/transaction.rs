@@ -99,10 +99,6 @@ impl TryFrom<InstructionValue> for Instruction {
     type Error = TransactionValueError;
 
     fn try_from(instruction_value: InstructionValue) -> Result<Self, Self::Error> {
-        if instruction_value.accounts.is_empty() {
-            return Err(TransactionValueError::InvalidInstruction);
-        }
-
         let accounts = instruction_value
             .accounts
             .into_iter()

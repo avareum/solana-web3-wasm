@@ -1091,3 +1091,723 @@ pub fn get_kyber_transaction_string(_maybe_recent_blockhash: Option<Hash>) -> St
     })
     .to_string()
 }
+
+pub fn get_ribbon_transaction_string(_maybe_recent_blockhash: Option<Hash>) -> String {
+    json!({
+        "recentBlockhash": "xhJi34Lyqvqouv4QbxHGfqJsJNR1fKu2PWJsyLjrA6E",
+        "feePayer": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+        "nonceInfo": null,
+        "instructions": [
+            {
+                "keys": [
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": true,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "2ExFjREhXHhkNQh62TD5HSFHdgA1Fs8pn8XFfasVNCSg",
+                        "isSigner": true,
+                        "isWritable": true
+                    }
+                ],
+                "programId": "11111111111111111111111111111111",
+                "data": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    240,
+                    29,
+                    31,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    165,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    6,
+                    221,
+                    246,
+                    225,
+                    215,
+                    101,
+                    161,
+                    147,
+                    217,
+                    203,
+                    225,
+                    70,
+                    206,
+                    235,
+                    121,
+                    172,
+                    28,
+                    180,
+                    133,
+                    237,
+                    95,
+                    91,
+                    55,
+                    145,
+                    58,
+                    140,
+                    245,
+                    133,
+                    126,
+                    255,
+                    0,
+                    169
+                ]
+            },
+            {
+                "keys": [
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": true,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "2ExFjREhXHhkNQh62TD5HSFHdgA1Fs8pn8XFfasVNCSg",
+                        "isSigner": false,
+                        "isWritable": true
+                    }
+                ],
+                "programId": "11111111111111111111111111111111",
+                "data": [
+                    2,
+                    0,
+                    0,
+                    0,
+                    64,
+                    66,
+                    15,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            },
+            {
+                "keys": [
+                    {
+                        "pubkey": "2ExFjREhXHhkNQh62TD5HSFHdgA1Fs8pn8XFfasVNCSg",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "So11111111111111111111111111111111111111112",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "SysvarRent111111111111111111111111111111111",
+                        "isSigner": false,
+                        "isWritable": false
+                    }
+                ],
+                "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                "data": [
+                    1
+                ]
+            },
+            {
+                "keys": [
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": true,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "E9zDVD19c5Cix3fVDXJ8gSMwCGRvHvK5aW1Es4bHYNuT",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "6RGoidD6X3sghGrCCMPmBXBBoZg9KCw35G3LDxxxsGLp",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "11111111111111111111111111111111",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "SysvarRent111111111111111111111111111111111",
+                        "isSigner": false,
+                        "isWritable": false
+                    }
+                ],
+                "programId": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+                "data": []
+            },
+            {
+                "keys": [
+                    {
+                        "pubkey": "VjdsdQWWNFUHY6QwU9iRv2QndCf3yufuskAzr12Ykws",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": true,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "2ExFjREhXHhkNQh62TD5HSFHdgA1Fs8pn8XFfasVNCSg",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "E9zDVD19c5Cix3fVDXJ8gSMwCGRvHvK5aW1Es4bHYNuT",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "2YNj4egax5WV1zSgq9hwJFNzHSYZo2rU7S8BZuMdQMKW",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "3xaNwyF7qms5cmSoEemPfHQpwEGzTsKqfrc7uLyRuWpC",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "So11111111111111111111111111111111111111112",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "6RGoidD6X3sghGrCCMPmBXBBoZg9KCw35G3LDxxxsGLp",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "3ghzHYHC7nXx11DEq7aGNHwTyT3SWmCs1B2Ay7HB8ZCk",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "6Sv6D5RsQ6qRBDDoTdBUYBz3gpjnCeEB1V5hnJ1yqNvo",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "6ovMxMnGZhq3FvneugXkq2ggoZE3VuJHKifUSnCNU5Bf",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "AR638eeUYZfbsB48AuZmbrEYusAmccoE62tcUJNAzRug",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "yK4Qc3PWWX5iP4DX4jqKrhNj3FmJX7jHWbeFuoude1b",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "11111111111111111111111111111111",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "SysvarRent111111111111111111111111111111111",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "83vsgm8EhQwFBXEkBSfFyA3KrxFG6xKY9DFN7LZXe9dL",
+                        "isSigner": false,
+                        "isWritable": true
+                    }
+                ],
+                "programId": "RBN2XNc6JQU6ewFp9TyPq6WznsvNuumzSJkor1nJFcz",
+                "data": [
+                    126,
+                    224,
+                    21,
+                    255,
+                    228,
+                    53,
+                    117,
+                    33,
+                    64,
+                    66,
+                    15,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    254
+                ]
+            }
+        ],
+        "signers": []
+    })
+    .to_string()
+}
+
+pub fn get_solend_transaction_string(_maybe_recent_blockhash: Option<Hash>) -> String {
+    json!({
+        "recentBlockhash": "3mKLGKidsTgJFdzEjDhyqyNDGpcEzfWdHXgugqC1H6LG",
+        "feePayer": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+        "nonceInfo": null,
+        "instructions": [
+            {
+                "keys": [],
+                "programId": "ComputeBudget111111111111111111111111111111",
+                "data": [
+                    2,
+                    224,
+                    147,
+                    4,
+                    0
+                ]
+            },
+            {
+                "keys": [],
+                "programId": "ComputeBudget111111111111111111111111111111",
+                "data": [
+                    3,
+                    149,
+                    117,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            },
+            {
+                "keys": [
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": true,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "488LpE3xDWfsjVMKiikP8nW8ntfKBL7wjoe4nNmFeCaX",
+                        "isSigner": false,
+                        "isWritable": true
+                    }
+                ],
+                "programId": "11111111111111111111111111111111",
+                "data": [
+                    3,
+                    0,
+                    0,
+                    0,
+                    142,
+                    131,
+                    83,
+                    79,
+                    26,
+                    182,
+                    128,
+                    66,
+                    71,
+                    245,
+                    189,
+                    250,
+                    72,
+                    166,
+                    80,
+                    5,
+                    155,
+                    184,
+                    253,
+                    9,
+                    4,
+                    225,
+                    47,
+                    55,
+                    254,
+                    215,
+                    163,
+                    126,
+                    54,
+                    95,
+                    184,
+                    74,
+                    32,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    55,
+                    82,
+                    67,
+                    122,
+                    56,
+                    119,
+                    98,
+                    54,
+                    87,
+                    88,
+                    120,
+                    85,
+                    104,
+                    65,
+                    105,
+                    103,
+                    111,
+                    107,
+                    57,
+                    116,
+                    116,
+                    103,
+                    114,
+                    86,
+                    103,
+                    68,
+                    70,
+                    70,
+                    70,
+                    98,
+                    105,
+                    98,
+                    192,
+                    167,
+                    151,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    20,
+                    5,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    6,
+                    155,
+                    139,
+                    152,
+                    90,
+                    171,
+                    83,
+                    42,
+                    69,
+                    9,
+                    13,
+                    232,
+                    85,
+                    127,
+                    205,
+                    220,
+                    190,
+                    108,
+                    183,
+                    239,
+                    199,
+                    58,
+                    10,
+                    101,
+                    176,
+                    111,
+                    146,
+                    3,
+                    93,
+                    183,
+                    62,
+                    236
+                ]
+            },
+            {
+                "keys": [
+                    {
+                        "pubkey": "488LpE3xDWfsjVMKiikP8nW8ntfKBL7wjoe4nNmFeCaX",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "7RCz8wb6WXxUhAigok9ttgrVgDFFFbibcirECzWSBauM",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": true,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "SysvarRent111111111111111111111111111111111",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                        "isSigner": false,
+                        "isWritable": false
+                    }
+                ],
+                "programId": "So1endDq2YkqhipRh3WViPa8hdiSpxWy6z3Z6tMCpAo",
+                "data": [
+                    6
+                ]
+            },
+            {
+                "keys": [
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": true,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "H8dTyMH6mmZxi59YchWkmjgZc7LSMj6fenKk854zPP9x",
+                        "isSigner": false,
+                        "isWritable": true
+                    }
+                ],
+                "programId": "11111111111111111111111111111111",
+                "data": [
+                    2,
+                    0,
+                    0,
+                    0,
+                    240,
+                    209,
+                    227,
+                    4,
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            },
+            {
+                "keys": [
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": true,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "H8dTyMH6mmZxi59YchWkmjgZc7LSMj6fenKk854zPP9x",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "So11111111111111111111111111111111111111112",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "11111111111111111111111111111111",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "SysvarRent111111111111111111111111111111111",
+                        "isSigner": false,
+                        "isWritable": false
+                    }
+                ],
+                "programId": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+                "data": []
+            },
+            {
+                "keys": [
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": true,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "8A1tQjR1JJeXyLjtHm1G36GeGTg9aJX6aWyB2jFxMQ8c",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "AVxnqyCameKsKTCGVKeyJMA7vjHnxJit6afC8AM9MdMj",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "11111111111111111111111111111111",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "SysvarRent111111111111111111111111111111111",
+                        "isSigner": false,
+                        "isWritable": false
+                    }
+                ],
+                "programId": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+                "data": []
+            },
+            {
+                "keys": [
+                    {
+                        "pubkey": "H8dTyMH6mmZxi59YchWkmjgZc7LSMj6fenKk854zPP9x",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "8A1tQjR1JJeXyLjtHm1G36GeGTg9aJX6aWyB2jFxMQ8c",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "UTABCRXirrbpCNDogCoqEECtM3V44jXGCsK23ZepV3Z",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "5cSfC32xBUYqGfkURLGfANuK64naHmMp27jUT7LQSujY",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "AVxnqyCameKsKTCGVKeyJMA7vjHnxJit6afC8AM9MdMj",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "7RCz8wb6WXxUhAigok9ttgrVgDFFFbibcirECzWSBauM",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "55YceCDfyvdcPPozDiMeNp9TpwmL1hdoTEFw5BMNWbpf",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "9QqRewoWbePkSH919xXn826h67ea1EFAVXhTdiJArDnx",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "488LpE3xDWfsjVMKiikP8nW8ntfKBL7wjoe4nNmFeCaX",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": true,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "H6ARHf6YXhGYeQfUzQNGk6rDNnLBQKrenN712K4AQJEG",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR",
+                        "isSigner": false,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": true,
+                        "isWritable": false
+                    },
+                    {
+                        "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                        "isSigner": false,
+                        "isWritable": false
+                    }
+                ],
+                "programId": "So1endDq2YkqhipRh3WViPa8hdiSpxWy6z3Z6tMCpAo",
+                "data": [
+                    14,
+                    0,
+                    180,
+                    196,
+                    4,
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            },
+            {
+                "keys": [
+                    {
+                        "pubkey": "H8dTyMH6mmZxi59YchWkmjgZc7LSMj6fenKk854zPP9x",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": false,
+                        "isWritable": true
+                    },
+                    {
+                        "pubkey": "AbK3CgMqCS4s4hDN87ge5pXAbTZ3aY67jCgjRHzLrSi5",
+                        "isSigner": true,
+                        "isWritable": false
+                    }
+                ],
+                "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                "data": [
+                    9
+                ]
+            }
+        ],
+        "signers": []
+    })
+    .to_string()
+}
