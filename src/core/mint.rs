@@ -35,6 +35,7 @@ pub fn get_logo_by_mint_address(mint_address: &str) -> String {
 }
 
 #[cfg(test)]
+#[cfg(not(target_arch = "wasm32"))]
 mod test {
     use crate::core::client::{EndPoint, Web3WasmClient};
     use std::str::FromStr;

@@ -64,6 +64,7 @@ pub async fn get_mint_metadata_map(
 }
 
 #[cfg(test)]
+#[cfg(not(target_arch = "wasm32"))]
 mod test {
     use std::str::FromStr;
 
