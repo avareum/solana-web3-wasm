@@ -111,7 +111,7 @@ mod test {
     use super::*;
 
     #[test]
-    fn success_deserialize() {
+    fn test_success_deserialize() {
         let test_data_0 = r#"{"data":{}}"#;
         let test_data_1 =
             r#"{"data":{"0":1,"1":2,"2":3,"3":4,"4":5,"5":6,"6":7,"7":8,"8":9,"9":10,"10":11}}"#;

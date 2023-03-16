@@ -139,7 +139,7 @@ mod test {
     use std::str::FromStr;
 
     #[tokio::test]
-    async fn success_transfer_spl_no_ata() {
+    async fn test_success_transfer_spl_no_ata() {
         let source_pubkey =
             Pubkey::from_str("DcJGXTE7L1XQtFSdvBv2NPkGCxQ1cziem1yXnqfy2rVy").unwrap();
         let destination_pubkey =

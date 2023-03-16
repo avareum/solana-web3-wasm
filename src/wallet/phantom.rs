@@ -124,7 +124,7 @@ mod test {
     };
 
     #[tokio::test]
-    async fn success_legacy_get_encoded_message_data_from_string() {
+    async fn test_success_legacy_get_encoded_message_data_from_string() {
         // Setup
         let (alice_pubkey, recent_blockhash) = get_default_setup();
         println!("alice_pubkey:{alice_pubkey:?}");
@@ -153,7 +153,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn success_legacy_get_multiple_message_data_from_string() {
+    async fn test_success_legacy_get_multiple_message_data_from_string() {
         // Setup
         let (alice_pubkey, recent_blockhash) = get_default_setup();
         let tx1_string = get_transfer_transaction_string(Some(recent_blockhash));
@@ -186,7 +186,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn success_v0_get_encoded_message_data_from_string() {
+    async fn test_success_v0_get_encoded_message_data_from_string() {
         // Setup
         let (alice_pubkey, recent_blockhash) = get_default_setup();
         let mocked_tx_v0 = get_transfer_transaction_v0_string(Some(recent_blockhash));
@@ -245,7 +245,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn success_v0_get_multiple_message_data_from_string_with_address_table_lookups() {
+    async fn test_success_v0_get_multiple_message_data_from_string_with_address_table_lookups() {
         // Setup
         let (alice_pubkey, recent_blockhash) = get_default_setup();
         let mocked_txs_v0 =
@@ -364,7 +364,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn success_v0_get_transfer_transaction_v0_string() {
+    async fn test_success_v0_get_transfer_transaction_v0_string() {
         // Setup
         let (_, recent_blockhash) = get_default_setup();
         let mocked_txs_v0 = [
@@ -392,7 +392,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn success_get_tulip_vault_transactions_string() {
+    async fn test_success_get_tulip_vault_transactions_string() {
         // Setup
         let (_, recent_blockhash) = get_default_setup();
         let mocked_tx = get_tulip_vault_transactions_string(Some(recent_blockhash));
@@ -407,7 +407,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn success_kyber_swap() {
+    async fn test_success_kyber_swap() {
         // Setup
         let (_, recent_blockhash) = get_default_setup();
         let mocked_tx_v0 = get_kyber_transaction_string(Some(recent_blockhash));
@@ -420,7 +420,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn success_ribbon() {
+    async fn test_success_ribbon() {
         // Setup
         let (_, recent_blockhash) = get_default_setup();
         let mocked_tx_v0 = get_ribbon_transaction_string(Some(recent_blockhash));
@@ -433,7 +433,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn success_solend() {
+    async fn test_success_solend() {
         // Setup
         let (_, recent_blockhash) = get_default_setup();
         let mocked_tx_v0 = get_solend_transaction_string(Some(recent_blockhash));
