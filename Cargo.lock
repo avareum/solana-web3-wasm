@@ -2103,7 +2103,7 @@ dependencies = [
 [[package]]
 name = "solana-client-wasm"
 version = "1.14.11"
-source = "git+https://github.com/avareum/solana-playground?rev=017ddb5#017ddb5c1090c665acc8697674032dee6b52184f"
+source = "git+https://github.com/avareum/solana-playground?rev=8ba44e5#8ba44e581513b214b24ec7126ec6f64d098d4f21"
 dependencies = [
  "async-trait",
  "base64 0.13.1",
@@ -2122,7 +2122,7 @@ dependencies = [
 [[package]]
 name = "solana-extra-wasm"
 version = "1.14.11"
-source = "git+https://github.com/avareum/solana-playground?rev=017ddb5#017ddb5c1090c665acc8697674032dee6b52184f"
+source = "git+https://github.com/avareum/solana-playground?rev=8ba44e5#8ba44e581513b214b24ec7126ec6f64d098d4f21"
 dependencies = [
  "Inflector",
  "arrayref",
