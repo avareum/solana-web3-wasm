@@ -32,10 +32,9 @@ spl-token = { version = "=3.5.0", features = ["no-entrypoint"], optional = true 
 getrandom = { version = "0.2", features = ["js"] }
 async-trait = "0.1.58"
 
-## Optional
-### wallet_info, nft_info
-mpl-token-metadata = { version = "=1.4.0", features = ["no-entrypoint"], optional = true }
+mpl-token-metadata = { version = "=1.4.0", features = ["no-entrypoint"]}
 
+## Optional
 ### transaction_builder
 base64 = { version = "0.13", optional = true }
 
@@ -63,8 +62,8 @@ panic = "abort"
 
 [features]
 default = ["wallet_info", "wasm_bindgen"]
-wallet_info = ["dep:mpl-token-metadata"]
-nft_info = ["dep:mpl-token-metadata"]
+wallet_info = []
+nft_info = []
 wasm_bindgen = ["dep:wasm-bindgen", "dep:wasm-bindgen-futures", "dep:serde-wasm-bindgen"]
 transaction_builder = ["dep:spl-associated-token-account", "dep:spl-token", "dep:base64", "dep:bs58"]
 phantom = ["default", "dep:bs58"]
