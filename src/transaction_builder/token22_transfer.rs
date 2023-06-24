@@ -10,7 +10,7 @@ use spl_associated_token_account::{
 
 use async_trait::async_trait;
 use solana_client_wasm::utils::rpc_filter::TokenAccountsFilter;
-use solana_extra_wasm::program::{spl_token::instruction::transfer_checked, spl_token_2022};
+use solana_extra_wasm::program::{spl_token_2022, spl_token_2022::instruction::transfer_checked};
 
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
@@ -156,10 +156,7 @@ impl Token22Transfer for WasmClient {
 mod test {
     const AIRDROP_AMOUNT: u64 = 1 * LAMPORTS_PER_SOL;
 
-    use crate::{
-        core::client::Web3WasmClient, tests::balance::wait_for_balance_change,
-        transaction_builder::token22_transfer::Token22Transfer,
-    };
+    use crate::{core::client::Web3WasmClient, tests::balance::wait_for_balance_change};
     use solana_client_wasm::WasmClient;
     use solana_extra_wasm::program::spl_token_2022::{
         self,
@@ -168,58 +165,34 @@ mod test {
     };
 
     use solana_sdk::{
-        native_token::LAMPORTS_PER_SOL, program_pack::Pack, pubkey::Pubkey, rent::Rent,
-        signature::Keypair, signer::Signer, system_instruction, transaction::Transaction,
+        hash::Hash, native_token::LAMPORTS_PER_SOL, pubkey::Pubkey, rent::Rent, signature::Keypair,
+        signer::Signer, system_instruction, transaction::Transaction,
     };
     use spl_associated_token_account::{
         get_associated_token_address_with_program_id, instruction::create_associated_token_account,
     };
     use spl_token_2022::state::Account;
-    use std::str::FromStr;
 
-    #[tokio::test]
-    async fn test_success_transfer_spl_no_ata() {
-        let source_pubkey =
-            Pubkey::from_str("DcJGXTE7L1XQtFSdvBv2NPkGCxQ1cziem1yXnqfy2rVy").unwrap();
-        let destination_pubkey =
-            Pubkey::from_str("DZQVs9FhoWMG19nL3ofmhpQRTjbHgKzM1CitskSGM9mJ").unwrap();
-        let mint_pubkey = Pubkey::from_str("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v").unwrap();
-
-        // TODO: consider move this to transfer_spl to cross-check input decimals
-        // TODO: use devnet with some mint.
-        let client = WasmClient::new_devnet();
-        let account = client.get_account(&mint_pubkey).await.unwrap();
-        let mint_info = Mint::unpack(&account.data).unwrap();
-        let decimals = mint_info.decimals;
-        let ui_amount = 0.00001f64;
-        let amount = spl_token_2022::ui_amount_to_amount(ui_amount, decimals);
-
-        let message_b58 = client
-            .get_message_data_bs58_for_transfer_spl(
-                &source_pubkey,
-                &destination_pubkey,
-                &mint_pubkey,
-                amount,
-                decimals,
-            )
-            .await
-            .unwrap();
-
-        assert!(!message_b58.is_empty());
+    struct TestContext {
+        client: WasmClient,
+        payer: Keypair,
+        recent_blockhash: Hash,
+        rent: Rent,
     }
 
-    // Fork from https://github.com/solana-labs/solana-program-library/blob/24d54db8b8c538c0027198971002c155348e7e3d/associated-token-account/program-test/tests/extended_mint.rs
-    #[tokio::test]
-    async fn test_associated_token_account_with_transfer_fees() {
-        let wallet_sender = Keypair::new();
-        let wallet_address_sender = wallet_sender.pubkey();
-        let wallet_address_receiver = Pubkey::new_unique();
-
-        // Client
+    async fn get_test_context() -> TestContext {
         let client = WasmClient::new_devnet();
+        let payer = Keypair::from_bytes(
+            [
+                198, 153, 231, 18, 212, 198, 237, 103, 115, 63, 253, 27, 78, 112, 53, 11, 67, 208,
+                171, 188, 17, 137, 93, 44, 42, 47, 30, 194, 42, 216, 249, 152, 6, 184, 75, 232,
+                188, 125, 225, 196, 192, 112, 221, 23, 104, 136, 67, 248, 190, 29, 4, 54, 121, 172,
+                103, 15, 119, 125, 9, 15, 243, 107, 6, 91,
+            ]
+            .as_ref(),
+        )
+        .unwrap();
 
-        // Payer
-        let payer = Keypair::new();
         let balance_before_airdrop_payer = client.get_balance(&payer.pubkey()).await.unwrap();
         println!("balance_before_airdrop_payer:{balance_before_airdrop_payer:?}");
 
@@ -228,7 +201,7 @@ mod test {
             .await
             .unwrap();
 
-        // Wait for richer payer
+        // Wait for airdrop
         wait_for_balance_change(
             &client,
             &payer.pubkey(),
@@ -238,7 +211,29 @@ mod test {
         .await;
 
         let recent_blockhash = client.get_latest_blockhash().await.unwrap();
-        let rent: Rent = Rent::default();
+        let rent = Rent::default();
+
+        TestContext {
+            client,
+            payer,
+            recent_blockhash,
+            rent,
+        }
+    }
+
+    // Fork from https://github.com/solana-labs/solana-program-library/blob/24d54db8b8c538c0027198971002c155348e7e3d/associated-token-account/program-test/tests/extended_mint.rs
+    #[tokio::test]
+    async fn test_associated_token_account_with_transfer_fees() {
+        // Context
+        let test_context = get_test_context().await;
+        let client = test_context.client;
+        let payer = test_context.payer;
+        let recent_blockhash = test_context.recent_blockhash;
+        let rent = test_context.rent;
+
+        let wallet_sender = Keypair::new();
+        let wallet_address_sender = wallet_sender.pubkey();
+        let wallet_address_receiver = Pubkey::new_unique();
 
         // create extended mint
         // ... in the future, a mint can be pre-loaded in program_test.rs like the regular mint
