@@ -180,44 +180,44 @@ mod test {
         rent: Rent,
     }
 
-    async fn get_test_context() -> TestContext {
-        let client = WasmClient::new_devnet();
-        let payer = Keypair::from_bytes(
-            [
-                198, 153, 231, 18, 212, 198, 237, 103, 115, 63, 253, 27, 78, 112, 53, 11, 67, 208,
-                171, 188, 17, 137, 93, 44, 42, 47, 30, 194, 42, 216, 249, 152, 6, 184, 75, 232,
-                188, 125, 225, 196, 192, 112, 221, 23, 104, 136, 67, 248, 190, 29, 4, 54, 121, 172,
-                103, 15, 119, 125, 9, 15, 243, 107, 6, 91,
-            ]
-            .as_ref(),
-        )
-        .unwrap();
-
-        let balance_before_airdrop_payer = client.get_balance(&payer.pubkey()).await.unwrap();
-        println!("balance_before_airdrop_payer:{balance_before_airdrop_payer:?}");
-
-        client
-            .request_airdrop(&payer.pubkey(), AIRDROP_AMOUNT)
-            .await
+    impl TestContext {
+        pub async fn new() -> Self {
+            let client = WasmClient::new_devnet();
+            let payer = Keypair::from_bytes(
+                [
+                    198, 153, 231, 18, 212, 198, 237, 103, 115, 63, 253, 27, 78, 112, 53, 11, 67,
+                    208, 171, 188, 17, 137, 93, 44, 42, 47, 30, 194, 42, 216, 249, 152, 6, 184, 75,
+                    232, 188, 125, 225, 196, 192, 112, 221, 23, 104, 136, 67, 248, 190, 29, 4, 54,
+                    121, 172, 103, 15, 119, 125, 9, 15, 243, 107, 6, 91,
+                ]
+                .as_ref(),
+            )
             .unwrap();
 
-        // Wait for airdrop
-        wait_for_balance_change(
-            &client,
-            &payer.pubkey(),
-            balance_before_airdrop_payer,
-            balance_before_airdrop_payer + AIRDROP_AMOUNT,
-        )
-        .await;
+            let balance_before_airdrop_payer = client.get_balance(&payer.pubkey()).await.unwrap();
+            println!("balance_before_airdrop_payer:{balance_before_airdrop_payer:?}");
 
-        let recent_blockhash = client.get_latest_blockhash().await.unwrap();
-        let rent = Rent::default();
+            match client
+                .request_airdrop(&payer.pubkey(), AIRDROP_AMOUNT)
+                .await
+            {
+                Ok(_) => {
+                    // Wait for airdrop
+                    wait_for_balance_change(&client, &payer.pubkey(), balance_before_airdrop_payer)
+                        .await;
+                }
+                Err(error) => println!("{error}"),
+            };
 
-        TestContext {
-            client,
-            payer,
-            recent_blockhash,
-            rent,
+            let recent_blockhash = client.get_latest_blockhash().await.unwrap();
+            let rent = Rent::default();
+
+            TestContext {
+                client,
+                payer,
+                recent_blockhash,
+                rent,
+            }
         }
     }
 
@@ -225,7 +225,7 @@ mod test {
     #[tokio::test]
     async fn test_associated_token_account_with_transfer_fees() {
         // Context
-        let test_context = get_test_context().await;
+        let test_context = TestContext::new().await;
         let client = test_context.client;
         let payer = test_context.payer;
         let recent_blockhash = test_context.recent_blockhash;
