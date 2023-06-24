@@ -17,6 +17,7 @@ pub async fn wait_for_balance_change(
     let max_loops = 60;
     loop {
         let balance_after = client.get_balance(account).await.unwrap();
+        println!("balance_after:{balance_after:?}");
         // NOTE might happen that alice is airdropped only after she
         // transferred the amount to BOB
         match balance_after.checked_sub(balance_before) {
