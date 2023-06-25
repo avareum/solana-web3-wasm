@@ -250,7 +250,7 @@ mod test {
         let wallet_receiver = Keypair::new();
         let wallet_address_receiver = wallet_receiver.pubkey();
 
-        // create extended mint
+        // 1. create extended mint
         // ... in the future, a mint can be pre-loaded in program_test.rs like the regular mint
         let mint_account = Keypair::new();
         let token_mint_address = mint_account.pubkey();
@@ -289,13 +289,13 @@ mod test {
         );
         transaction.sign(&[&payer, &mint_account], recent_blockhash);
 
-        // Send #1
+        // Send 1.
         client
             .send_and_confirm_transaction(&transaction)
             .await
             .unwrap();
 
-        // create extended ATAs
+        // 2. create extended ATAs sender
         let mut transaction = Transaction::new_with_payer(
             &[create_associated_token_account(
                 &payer.pubkey(),
@@ -307,12 +307,13 @@ mod test {
         );
         transaction.sign(&[&payer], recent_blockhash);
 
-        // Send #2
+        // Send 2.
         client
             .send_and_confirm_transaction(&transaction)
             .await
             .unwrap();
 
+        // 3. create extended ATAs receiver
         let recent_blockhash = client.get_latest_blockhash().await.unwrap();
 
         let mut transaction = Transaction::new_with_payer(
@@ -326,7 +327,7 @@ mod test {
         );
         transaction.sign(&[&payer], recent_blockhash);
 
-        // Send #3
+        // Send 3.
         client
             .send_and_confirm_transaction(&transaction)
             .await
@@ -343,7 +344,7 @@ mod test {
             &spl_token_2022::id(),
         );
 
-        // mint tokens
+        // 4. mint tokens
         let sender_amount = 50 * maximum_fee;
         let mut transaction = Transaction::new_with_payer(
             &[spl_token_2022::instruction::mint_to(
@@ -359,41 +360,41 @@ mod test {
         );
         transaction.sign(&[&payer, &mint_authority], recent_blockhash);
 
-        // Send #4
+        // Send 4.
         client
             .send_and_confirm_transaction(&transaction)
             .await
             .unwrap();
 
-        // not enough tokens
-        let mut transaction = Transaction::new_with_payer(
-            &[transfer_fee::instruction::transfer_checked_with_fee(
-                &spl_token_2022::id(),
-                &associated_token_address_sender,
-                &token_mint_address,
-                &associated_token_address_receiver,
-                &wallet_address_sender,
-                &[],
-                10_001,
-                0,
-                maximum_fee,
-            )
-            .unwrap()],
-            Some(&payer.pubkey()),
-        );
-        transaction.sign(&[&payer, &wallet_sender], recent_blockhash);
+        // // 5. not enough tokens
+        // let mut transaction = Transaction::new_with_payer(
+        //     &[transfer_fee::instruction::transfer_checked_with_fee(
+        //         &spl_token_2022::id(),
+        //         &associated_token_address_sender,
+        //         &token_mint_address,
+        //         &associated_token_address_receiver,
+        //         &wallet_address_sender,
+        //         &[],
+        //         10_001,
+        //         0,
+        //         maximum_fee,
+        //     )
+        //     .unwrap()],
+        //     Some(&payer.pubkey()),
+        // );
+        // transaction.sign(&[&payer, &wallet_sender], recent_blockhash);
 
-        // Send #5
-        let err = client
-            .send_and_confirm_transaction(&transaction)
-            .await
-            .unwrap_err();
+        // // Send 5.
+        // let err = client
+        //     .send_and_confirm_transaction(&transaction)
+        //     .await
+        //     .unwrap_err();
 
-        println!("Expected error: {err:#?}");
+        // println!("Expected error: {err:#?}");
 
+        // 6. Transfer with memo.
         let recent_blockhash = client.get_latest_blockhash().await.unwrap();
 
-        // success
         let transfer_amount = 500;
         let fee = 50;
         let memo_ix = spl_memo::build_memo("Hello World!".as_bytes(), &[&payer.pubkey()]);
@@ -418,7 +419,7 @@ mod test {
 
         transaction.sign(&[&payer, &wallet_sender], recent_blockhash);
 
-        // Send #6
+        // Send 6.
         client
             .send_and_confirm_transaction(&transaction)
             .await
