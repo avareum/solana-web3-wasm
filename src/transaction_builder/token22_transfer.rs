@@ -22,15 +22,6 @@ pub trait Token22Transfer {
         amount: u64,
     ) -> anyhow::Result<String>;
 
-    async fn get_message_data_bs58_for_transfer_spl(
-        &self,
-        source: &Pubkey,
-        destination: &Pubkey,
-        mint_pubkey: &Pubkey,
-        amount: u64,
-        decimals: u8,
-    ) -> anyhow::Result<String>;
-
     async fn get_instructions_for_transfer_spl(
         &self,
         source: &Pubkey,
@@ -39,6 +30,15 @@ pub trait Token22Transfer {
         amount: u64,
         decimals: u8,
     ) -> anyhow::Result<Vec<Instruction>>;
+
+    async fn get_message_data_bs58_for_transfer_spl(
+        &self,
+        source: &Pubkey,
+        destination: &Pubkey,
+        mint_pubkey: &Pubkey,
+        amount: u64,
+        decimals: u8,
+    ) -> anyhow::Result<String>;
 }
 
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
@@ -156,17 +156,30 @@ impl Token22Transfer for WasmClient {
 mod test {
     const AIRDROP_AMOUNT: u64 = 1 * LAMPORTS_PER_SOL;
 
+    use super::*;
     use crate::{core::client::Web3WasmClient, tests::balance::wait_for_balance_change};
     use solana_client_wasm::WasmClient;
-    use solana_extra_wasm::program::spl_token_2022::{
-        self,
-        extension::{transfer_fee, ExtensionType, StateWithExtensionsOwned},
-        state::Mint,
+    use solana_extra_wasm::program::{
+        spl_memo,
+        spl_token_2022::{
+            self,
+            extension::{
+                memo_transfer::instruction::enable_required_transfer_memos, transfer_fee,
+                ExtensionType, StateWithExtensionsOwned,
+            },
+            state::Mint,
+        },
     };
 
     use solana_sdk::{
-        hash::Hash, native_token::LAMPORTS_PER_SOL, pubkey::Pubkey, rent::Rent, signature::Keypair,
-        signer::Signer, system_instruction, transaction::Transaction,
+        hash::Hash,
+        instruction::{AccountMeta, Instruction},
+        native_token::LAMPORTS_PER_SOL,
+        rent::Rent,
+        signature::Keypair,
+        signer::Signer,
+        system_instruction,
+        transaction::Transaction,
     };
     use spl_associated_token_account::{
         get_associated_token_address_with_program_id, instruction::create_associated_token_account,
@@ -233,7 +246,9 @@ mod test {
 
         let wallet_sender = Keypair::new();
         let wallet_address_sender = wallet_sender.pubkey();
-        let wallet_address_receiver = Pubkey::new_unique();
+
+        let wallet_receiver = Keypair::new();
+        let wallet_address_receiver = wallet_receiver.pubkey();
 
         // create extended mint
         // ... in the future, a mint can be pre-loaded in program_test.rs like the regular mint
@@ -242,6 +257,7 @@ mod test {
         let mint_authority = Keypair::new();
         let space = ExtensionType::get_account_len::<Mint>(&[ExtensionType::TransferFeeConfig]);
         let maximum_fee = 100;
+        let decimals = 0;
         let mut transaction = Transaction::new_with_payer(
             &[
                 system_instruction::create_account(
@@ -265,7 +281,7 @@ mod test {
                     &token_mint_address,
                     &mint_authority.pubkey(),
                     Some(&mint_authority.pubkey()),
-                    0,
+                    decimals,
                 )
                 .unwrap(),
             ],
@@ -373,7 +389,7 @@ mod test {
             .await
             .unwrap_err();
 
-        println!("{err:#?}");
+        println!("Expected error: {err:#?}");
 
         let recent_blockhash = client.get_latest_blockhash().await.unwrap();
 
@@ -428,5 +444,76 @@ mod test {
             .get_extension::<transfer_fee::TransferFeeAmount>()
             .unwrap();
         assert_eq!(extension.withheld_amount, fee.into());
+
+        // require memo transfers into wallet_address_receiver
+        let enable_memo_transfers_ix = enable_required_transfer_memos(
+            &spl_token_2022::id(),
+            &associated_token_address_receiver,
+            &wallet_address_receiver,
+            &[&wallet_address_receiver],
+        )
+        .unwrap();
+
+        // let wallet_sender_state = client.get_account(&wallet_sender.pubkey()).await.unwrap();
+        // let extension = wallet_sender_state.get_extension::<MemoTransfer>().unwrap();
+        // assert!(bool::from(extension.require_incoming_transfer_memos));
+        // println!("{wallet_sender_state:#?}");
+
+        let recent_blockhash = client.get_latest_blockhash().await.unwrap();
+
+        let mut transaction =
+            Transaction::new_with_payer(&[enable_memo_transfers_ix], Some(&payer.pubkey()));
+        transaction.sign(&[&payer, &wallet_receiver], recent_blockhash);
+
+        // Send #7
+        client
+            .send_and_confirm_transaction(&transaction)
+            .await
+            .unwrap();
+
+        // https://github.com/solana-labs/solana-program-library/blob/5f4943802bfb8ac7eaf9ede62f68ef9a94d1427d/token/program-2022-test/tests/memo_transfer.rs
+        // https://github.com/solana-labs/solana/blob/6bd4ae695528e394258d90fb7beaece488475674/transaction-status/src/parse_token/extension/memo_transfer.rs
+        // transfer with memo
+        let memo = "Hello World!";
+        // let signer_pubkeys = [payer.pubkey()];
+        // let memo_ix = Instruction {
+        //     program_id: spl_memo::id(),
+        //     accounts: signer_pubkeys
+        //         .iter()
+        //         .map(|pubkey| AccountMeta::new_readonly(*pubkey, true))
+        //         .collect(),
+        //     data: memo.as_bytes().to_vec(),
+        // };
+        let memo_ix = spl_memo::build_memo(memo.as_bytes(), &[&payer.pubkey()]);
+
+        // transfer
+        let amount = 100u64;
+        let transfer_ixs = client
+            .get_instructions_for_transfer_spl(
+                &wallet_address_sender,
+                &wallet_address_receiver,
+                &token_mint_address,
+                amount,
+                decimals,
+            )
+            .await
+            .unwrap();
+
+        let recent_blockhash = client.get_latest_blockhash().await.unwrap();
+
+        let mut ixs = vec![memo_ix];
+        ixs.extend(transfer_ixs);
+        let mut transaction = Transaction::new_with_payer(&ixs, Some(&payer.pubkey()));
+        transaction.sign(&[&payer], recent_blockhash);
+
+        // Send #8
+        client
+            .send_and_confirm_transaction(&transaction)
+            .await
+            .unwrap();
+
+        println!("wallet_address_sender:{wallet_address_sender:#?}");
+        println!("wallet_address_receiver:{wallet_address_receiver:#?}");
+        println!("token_mint_address:{token_mint_address:#?}");
     }
 }
