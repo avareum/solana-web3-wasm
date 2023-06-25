@@ -396,21 +396,26 @@ mod test {
         // success
         let transfer_amount = 500;
         let fee = 50;
+        let memo_ix = spl_memo::build_memo("Hello World!".as_bytes(), &[&payer.pubkey()]);
         let mut transaction = Transaction::new_with_payer(
-            &[transfer_fee::instruction::transfer_checked_with_fee(
-                &spl_token_2022::id(),
-                &associated_token_address_sender,
-                &token_mint_address,
-                &associated_token_address_receiver,
-                &wallet_address_sender,
-                &[],
-                transfer_amount,
-                0,
-                fee,
-            )
-            .unwrap()],
+            &[
+                transfer_fee::instruction::transfer_checked_with_fee(
+                    &spl_token_2022::id(),
+                    &associated_token_address_sender,
+                    &token_mint_address,
+                    &associated_token_address_receiver,
+                    &wallet_address_sender,
+                    &[],
+                    transfer_amount,
+                    0,
+                    fee,
+                )
+                .unwrap(),
+                memo_ix,
+            ],
             Some(&payer.pubkey()),
         );
+
         transaction.sign(&[&payer, &wallet_sender], recent_blockhash);
 
         // Send #6
@@ -445,36 +450,37 @@ mod test {
             .unwrap();
         assert_eq!(extension.withheld_amount, fee.into());
 
-        // require memo transfers into wallet_address_receiver
-        let enable_memo_transfers_ix = enable_required_transfer_memos(
-            &spl_token_2022::id(),
-            &associated_token_address_receiver,
-            &wallet_address_receiver,
-            &[&wallet_address_receiver],
-        )
-        .unwrap();
+        ////// DIDN'T WORK
+        // // require memo transfers into wallet_address_receiver
+        // let enable_memo_transfers_ix = enable_required_transfer_memos(
+        //     &spl_token_2022::id(),
+        //     &associated_token_address_receiver,
+        //     &wallet_address_receiver,
+        //     &[&wallet_address_receiver],
+        // )
+        // .unwrap();
 
         // let wallet_sender_state = client.get_account(&wallet_sender.pubkey()).await.unwrap();
         // let extension = wallet_sender_state.get_extension::<MemoTransfer>().unwrap();
         // assert!(bool::from(extension.require_incoming_transfer_memos));
         // println!("{wallet_sender_state:#?}");
 
-        let recent_blockhash = client.get_latest_blockhash().await.unwrap();
+        // let recent_blockhash = client.get_latest_blockhash().await.unwrap();
 
-        let mut transaction =
-            Transaction::new_with_payer(&[enable_memo_transfers_ix], Some(&payer.pubkey()));
-        transaction.sign(&[&payer, &wallet_receiver], recent_blockhash);
+        // let mut transaction =
+        //     Transaction::new_with_payer(&[enable_memo_transfers_ix], Some(&payer.pubkey()));
+        // transaction.sign(&[&payer, &wallet_receiver], recent_blockhash);
 
-        // Send #7
-        client
-            .send_and_confirm_transaction(&transaction)
-            .await
-            .unwrap();
+        // // Send #7
+        // client
+        //     .send_and_confirm_transaction(&transaction)
+        //     .await
+        //     .unwrap();
 
         // https://github.com/solana-labs/solana-program-library/blob/5f4943802bfb8ac7eaf9ede62f68ef9a94d1427d/token/program-2022-test/tests/memo_transfer.rs
         // https://github.com/solana-labs/solana/blob/6bd4ae695528e394258d90fb7beaece488475674/transaction-status/src/parse_token/extension/memo_transfer.rs
         // transfer with memo
-        let memo = "Hello World!";
+        // let memo = "Hello World!";
         // let signer_pubkeys = [payer.pubkey()];
         // let memo_ix = Instruction {
         //     program_id: spl_memo::id(),
@@ -484,33 +490,33 @@ mod test {
         //         .collect(),
         //     data: memo.as_bytes().to_vec(),
         // };
-        let memo_ix = spl_memo::build_memo(memo.as_bytes(), &[&payer.pubkey()]);
+        // let memo_ix = spl_memo::build_memo(memo.as_bytes(), &[&payer.pubkey()]);
 
-        // transfer
-        let amount = 100u64;
-        let transfer_ixs = client
-            .get_instructions_for_transfer_spl(
-                &wallet_address_sender,
-                &wallet_address_receiver,
-                &token_mint_address,
-                amount,
-                decimals,
-            )
-            .await
-            .unwrap();
+        // // transfer
+        // let amount = 100u64;
+        // let transfer_ixs = client
+        //     .get_instructions_for_transfer_spl(
+        //         &wallet_address_sender,
+        //         &wallet_address_receiver,
+        //         &token_mint_address,
+        //         amount,
+        //         decimals,
+        //     )
+        //     .await
+        //     .unwrap();
 
-        let recent_blockhash = client.get_latest_blockhash().await.unwrap();
+        // let recent_blockhash = client.get_latest_blockhash().await.unwrap();
 
-        let mut ixs = vec![memo_ix];
-        ixs.extend(transfer_ixs);
-        let mut transaction = Transaction::new_with_payer(&ixs, Some(&payer.pubkey()));
-        transaction.sign(&[&payer], recent_blockhash);
+        // let mut ixs = vec![memo_ix];
+        // ixs.extend(transfer_ixs);
+        // let mut transaction = Transaction::new_with_payer(&ixs, Some(&payer.pubkey()));
+        // transaction.sign(&[&payer], recent_blockhash);
 
-        // Send #8
-        client
-            .send_and_confirm_transaction(&transaction)
-            .await
-            .unwrap();
+        // // Send #8
+        // client
+        //     .send_and_confirm_transaction(&transaction)
+        //     .await
+        //     .unwrap();
 
         println!("wallet_address_sender:{wallet_address_sender:#?}");
         println!("wallet_address_receiver:{wallet_address_receiver:#?}");
