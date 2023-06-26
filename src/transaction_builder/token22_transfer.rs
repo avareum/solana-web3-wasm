@@ -164,7 +164,13 @@ mod test {
         spl_token_2022::{
             self,
             extension::{
-                memo_transfer::instruction::enable_required_transfer_memos, transfer_fee,
+                memo_transfer::instruction::enable_required_transfer_memos,
+                transfer_fee::{
+                    self,
+                    instruction::{
+                        withdraw_withheld_tokens_from_accounts, withdraw_withheld_tokens_from_mint,
+                    },
+                },
                 ExtensionType, StateWithExtensionsOwned,
             },
             state::Mint,
@@ -244,6 +250,8 @@ mod test {
         let recent_blockhash = test_context.recent_blockhash;
         let rent = test_context.rent;
 
+        let fee_vault = Keypair::new();
+
         let wallet_sender = Keypair::new();
         let wallet_address_sender = wallet_sender.pubkey();
 
@@ -269,9 +277,9 @@ mod test {
                 ),
                 transfer_fee::instruction::initialize_transfer_fee_config(
                     &spl_token_2022::id(),
-                    &token_mint_address,
-                    Some(&mint_authority.pubkey()),
-                    Some(&mint_authority.pubkey()),
+                    &token_mint_address,       // mint
+                    Some(&fee_vault.pubkey()), // transfer_fee_config_authority
+                    Some(&fee_vault.pubkey()), // withdraw_withheld_authority
                     1_000,
                     maximum_fee,
                 )
@@ -333,6 +341,26 @@ mod test {
             .await
             .unwrap();
 
+        // 3.1 create extended ATAs platform
+        let recent_blockhash = client.get_latest_blockhash().await.unwrap();
+
+        let mut transaction = Transaction::new_with_payer(
+            &[create_associated_token_account(
+                &payer.pubkey(),
+                &fee_vault.pubkey(),
+                &token_mint_address,
+                &spl_token_2022::id(),
+            )],
+            Some(&payer.pubkey()),
+        );
+        transaction.sign(&[&payer], recent_blockhash);
+
+        // Send 3.1
+        client
+            .send_and_confirm_transaction(&transaction)
+            .await
+            .unwrap();
+
         let associated_token_address_sender = get_associated_token_address_with_program_id(
             &wallet_address_sender,
             &token_mint_address,
@@ -340,6 +368,11 @@ mod test {
         );
         let associated_token_address_receiver = get_associated_token_address_with_program_id(
             &wallet_address_receiver,
+            &token_mint_address,
+            &spl_token_2022::id(),
+        );
+        let associated_token_address_fee_vault = get_associated_token_address_with_program_id(
+            &fee_vault.pubkey(),
             &token_mint_address,
             &spl_token_2022::id(),
         );
@@ -451,6 +484,36 @@ mod test {
             .unwrap();
         assert_eq!(extension.withheld_amount, fee.into());
 
+        println!(
+            "extension.withheld_amount: {:#?}",
+            extension.withheld_amount
+        );
+
+        // forked from https://github.com/solana-labs/solana/blob/6bd4ae695528e394258d90fb7beaece488475674/transaction-status/src/parse_token/extension/transfer_fee.rs
+        // Single authority WithdrawWithheldTokensFromAccounts
+        let withdraw_withheld_tokens_from_accounts_ix = withdraw_withheld_tokens_from_accounts(
+            &spl_token_2022::id(),
+            &mint_account.pubkey(),
+            &associated_token_address_fee_vault,
+            &fee_vault.pubkey(),
+            &[],
+            &[&associated_token_address_receiver],
+        )
+        .unwrap();
+
+        let mut transaction = Transaction::new_with_payer(
+            &[withdraw_withheld_tokens_from_accounts_ix],
+            Some(&payer.pubkey()),
+        );
+
+        transaction.sign(&[&payer, &fee_vault], recent_blockhash);
+
+        // Send 7.
+        client
+            .send_and_confirm_transaction(&transaction)
+            .await
+            .unwrap();
+
         ////// DIDN'T WORK
         // // require memo transfers into wallet_address_receiver
         // let enable_memo_transfers_ix = enable_required_transfer_memos(
@@ -519,8 +582,10 @@ mod test {
         //     .await
         //     .unwrap();
 
-        println!("wallet_address_sender:{wallet_address_sender:#?}");
-        println!("wallet_address_receiver:{wallet_address_receiver:#?}");
-        println!("token_mint_address:{token_mint_address:#?}");
+        println!("wallet_address_sender: {wallet_address_sender:#?}");
+        println!("wallet_address_receiver: {wallet_address_receiver:#?}");
+        println!("token_mint_address: {token_mint_address:#?}");
+        println!("fee_vault: {:#?}", fee_vault.pubkey());
+        println!("associated_token_address_fee_vault: {associated_token_address_fee_vault:#?}");
     }
 }
