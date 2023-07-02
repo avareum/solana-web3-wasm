@@ -15,14 +15,21 @@ use solana_extra_wasm::program::{spl_token_2022, spl_token_2022::instruction::tr
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
 pub trait Token22Transfer {
-    fn get_message_data_bs58_for_transfer_native(
+    fn build_transfer_native_instruction(
+        &self,
+        source: &Pubkey,
+        destination: &Pubkey,
+        amount: u64,
+    ) -> anyhow::Result<Vec<Instruction>>;
+
+    fn build_transfer_native_instruction_message_data_bs58(
         &self,
         source: &Pubkey,
         destination: &Pubkey,
         amount: u64,
     ) -> anyhow::Result<String>;
 
-    async fn get_instructions_for_transfer_spl(
+    async fn build_transfer_spl_instructions(
         &self,
         source: &Pubkey,
         destination: &Pubkey,
@@ -31,7 +38,7 @@ pub trait Token22Transfer {
         decimals: u8,
     ) -> anyhow::Result<Vec<Instruction>>;
 
-    async fn get_message_data_bs58_for_transfer_spl(
+    async fn build_transfer_spl_instructions_message_data_bs58(
         &self,
         source: &Pubkey,
         destination: &Pubkey,
@@ -44,12 +51,12 @@ pub trait Token22Transfer {
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
 impl Token22Transfer for WasmClient {
-    fn get_message_data_bs58_for_transfer_native(
+    fn build_transfer_native_instruction(
         &self,
         source: &Pubkey,
         destination: &Pubkey,
         amount: u64,
-    ) -> anyhow::Result<String> {
+    ) -> anyhow::Result<Vec<Instruction>> {
         // 0. Init
         let mut instructions: Vec<Instruction> = vec![];
 
@@ -58,14 +65,29 @@ impl Token22Transfer for WasmClient {
 
         instructions.push(ix);
 
-        // 2. Serialize message to bs58
-        let message = Message::new(&instructions, Some(source));
-        let message_b58 = bs58::encode(message.serialize()).into_string();
-
-        Ok(message_b58)
+        Ok(instructions)
     }
 
-    async fn get_instructions_for_transfer_spl(
+    fn build_transfer_native_instruction_message_data_bs58(
+        &self,
+        source: &Pubkey,
+        destination: &Pubkey,
+        amount: u64,
+    ) -> anyhow::Result<String> {
+        // 1. Build transfer ix
+        match self.build_transfer_native_instruction(source, destination, amount) {
+            Ok(instructions) => {
+                // 2. Serialize message to bs58
+                let message = Message::new(&instructions, Some(source));
+                let message_b58 = bs58::encode(message.serialize()).into_string();
+
+                Ok(message_b58)
+            }
+            Err(e) => bail!(e),
+        }
+    }
+
+    async fn build_transfer_spl_instructions(
         &self,
         source: &Pubkey,
         destination: &Pubkey,
@@ -130,7 +152,7 @@ impl Token22Transfer for WasmClient {
         Ok(instructions)
     }
 
-    async fn get_message_data_bs58_for_transfer_spl(
+    async fn build_transfer_spl_instructions_message_data_bs58(
         &self,
         source: &Pubkey,
         destination: &Pubkey,
@@ -140,7 +162,7 @@ impl Token22Transfer for WasmClient {
     ) -> anyhow::Result<String> {
         // Get instructions.
         let instructions = self
-            .get_instructions_for_transfer_spl(source, destination, mint_pubkey, amount, decimals)
+            .build_transfer_spl_instructions(source, destination, mint_pubkey, amount, decimals)
             .await?;
 
         // Serialize message to bs58
@@ -150,7 +172,6 @@ impl Token22Transfer for WasmClient {
         Ok(message_b58)
     }
 }
-
 #[cfg(not(target_arch = "wasm32"))]
 #[cfg(test)]
 mod test {

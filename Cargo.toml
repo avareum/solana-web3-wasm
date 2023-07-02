@@ -51,7 +51,7 @@ fluvio-wasm-timer = "0.2.5"
 wasm-bindgen-test = "0.3.34"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
-tokio = { version = "1.22", features = ["full"] }
+tokio = { version = "1.29", features = ["full"] }
 
 [profile.release]
 opt-level = "z"  # Optimize for size.
