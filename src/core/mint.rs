@@ -64,6 +64,7 @@ mod test {
     }
 
     #[tokio::test]
+    #[ignore]
     async fn test_custom_rpc() {
         let client = Web3WasmClient::new(&EndPoint::CustomUrl(
             "https://rpc.ankr.com/solana".to_owned(),
